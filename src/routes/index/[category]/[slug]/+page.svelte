@@ -65,9 +65,7 @@
 		].filter((row) => row !== null)
 	);
 
-	const visibleDetails = $derived(
-		selectedVariant.details.filter((detail) => hasValue(detail.value))
-	);
+	const visibleDetails = $derived(selectedVariant.details.filter((detail) => hasValue(detail.value)));
 </script>
 
 <svelte:head>
@@ -133,7 +131,17 @@
 				{#each visibleDetails as detail}
 					<div>
 						<dt>{detail.label}</dt>
-						<dd>{detail.value}</dd>
+						<dd>
+							{#each detail.segments as segment}
+								{#if segment.href != null}
+									<a class="detail-link" href={segment.href} target="_blank" rel="noreferrer">
+										{segment.text}
+									</a>
+								{:else}
+									{segment.text}
+								{/if}
+							{/each}
+						</dd>
 					</div>
 				{/each}
 			</dl>
@@ -292,6 +300,12 @@
 	dd {
 		margin: 0;
 		line-height: 1.5;
+		white-space: pre-wrap;
+	}
+
+	.detail-link {
+		color: #8fb0ff;
+		text-decoration: underline;
 	}
 
 	.rarity-common {

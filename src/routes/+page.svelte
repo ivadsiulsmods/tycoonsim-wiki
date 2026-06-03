@@ -2,6 +2,26 @@
 	import ThemeToggle from "$lib/components/ThemeToggle.svelte";
 
 	const joinGameUrl = "https://www.roblox.com/games/start?placeId=123076957357158";
+	const tooltipMessage =
+		"our spreadsheet parser is still in development, and you may come across some bugs. If you do come across them, check the spreadsheet.";
+
+	let tooltipVisible = $state(false);
+	let tooltipX = $state(0);
+	let tooltipY = $state(0);
+
+	function updateTooltipPosition(event: MouseEvent) {
+		tooltipX = event.clientX;
+		tooltipY = event.clientY;
+	}
+
+	function showTooltip(event: MouseEvent) {
+		updateTooltipPosition(event);
+		tooltipVisible = true;
+	}
+
+	function hideTooltip() {
+		tooltipVisible = false;
+	}
 </script>
 
 <svelte:head>
@@ -27,7 +47,22 @@
 		<div class="hero-copy">
 			<h1>the drillbit <span>index</span></h1>
 			<p class="description">Information collected by Minecraftwiner1, site by ivadsiuls</p>
-			<p class="supporting">find info about every* drillbit item</p>
+			<p class="supporting">
+				find info about
+				<button
+					type="button"
+					class="supporting-tip-anchor"
+					onmouseenter={showTooltip}
+					onmousemove={updateTooltipPosition}
+					onmouseleave={hideTooltip}
+					onfocus={() => (tooltipVisible = true)}
+					onblur={hideTooltip}
+					aria-label={tooltipMessage}
+				>
+					every*
+				</button>
+				drillbit item
+			</p>
 			<div class="actions">
 				<a class="primary" href="/index">view index</a>
 				<a class="secondary" href="/builder">builder</a>
@@ -50,6 +85,17 @@
 			</div>
 		</div>
 	</section>
+
+	{#if tooltipVisible}
+		<div
+			class="hero-tooltip"
+			style:left="{tooltipX}px"
+			style:top="{tooltipY}px"
+			role="tooltip"
+		>
+			{tooltipMessage}
+		</div>
+	{/if}
 </main>
 
 <style>
@@ -149,6 +195,42 @@
 		font-size: 0.95rem;
 	}
 
+	.supporting-tip-anchor {
+		display: inline-block;
+		margin: 0 0.3rem;
+		padding: 0;
+		border: 0;
+		border-bottom: 1px dashed color-mix(in srgb, var(--accent) 65%, transparent);
+		background: transparent;
+		color: inherit;
+		cursor: help;
+		outline: none;
+		text-transform: inherit;
+	}
+
+	.supporting-tip-anchor:focus-visible {
+		border-bottom-color: var(--accent);
+		box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--accent) 18%, transparent);
+	}
+
+	.hero-tooltip {
+		position: fixed;
+		left: 0;
+		top: 0;
+		z-index: 20;
+		max-width: min(18rem, calc(100vw - 1.5rem));
+		padding: 0.75rem 0.85rem;
+		border: 1px solid var(--border-strong);
+		background: var(--panel-strong);
+		box-shadow: var(--shadow);
+		color: var(--text);
+		font-size: 0.82rem;
+		line-height: 1.45;
+		transform: translate(0, calc(-100% - 0.65rem));
+		pointer-events: none;
+		text-transform: none;
+	}
+
 	.actions {
 		display: flex;
 		flex-wrap: wrap;
@@ -239,6 +321,10 @@
 
 		.preview-grid {
 			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+
+		.hero-tooltip {
+			max-width: min(15rem, calc(100vw - 1rem));
 		}
 	}
 </style>

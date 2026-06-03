@@ -1,7 +1,13 @@
+export type CatalogDetailSegment = {
+	href?: string;
+	text: string;
+};
+
 export type CategoryKey = "droppers" | "upgraders" | "furnaces";
 
 export type CatalogDetail = {
 	label: string;
+	segments: CatalogDetailSegment[];
 	value: string;
 };
 
