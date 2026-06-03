@@ -131,3 +131,9 @@ if the spreadsheet changes shape, check these areas first:
 ## status
 
 this project is actively being shaped around the spreadsheet and current site needs, so expect the schema, views, and builder page to keep evolving.
+
+# contributions
+contributions are welcome! if you'd like to contribute, simply send a pr and i'll take a look at it.
+
+# ai
+this project makes heavy use of ai to speed up development.
