@@ -3,8 +3,27 @@
 	import { onMount } from "svelte";
 
 	type ThemeMode = "dark" | "light";
+	const THEME_TRANSITION_MS = 320;
 
 	let theme = $state<ThemeMode>("dark");
+	let transitionTimeout = 0;
+
+	const beginThemeTransition = () => {
+		if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+			return;
+		}
+
+		document.documentElement.dataset.themeChanging = "true";
+
+		if (transitionTimeout !== 0) {
+			window.clearTimeout(transitionTimeout);
+		}
+
+		transitionTimeout = window.setTimeout(() => {
+			delete document.documentElement.dataset.themeChanging;
+			transitionTimeout = 0;
+		}, THEME_TRANSITION_MS);
+	};
 
 	const syncTheme = (nextTheme: ThemeMode) => {
 		theme = nextTheme;
@@ -13,6 +32,7 @@
 	};
 
 	const toggleTheme = () => {
+		beginThemeTransition();
 		syncTheme(theme === "dark" ? "light" : "dark");
 	};
 
@@ -26,6 +46,12 @@
 					: "dark";
 
 		syncTheme(preferredTheme);
+
+		return () => {
+			if (transitionTimeout !== 0) {
+				window.clearTimeout(transitionTimeout);
+			}
+		};
 	});
 </script>
 

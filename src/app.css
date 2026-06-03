@@ -121,3 +121,28 @@ input {
 	-webkit-mask-image: var(--dot-mask);
 	mask-image: var(--dot-mask);
 }
+
+:root[data-theme-changing="true"] body,
+:root[data-theme-changing="true"] .site-background,
+:root[data-theme-changing="true"] .site-background::before,
+:root[data-theme-changing="true"] .site-background::after,
+:root[data-theme-changing="true"] .app-content :is(a, button, input, section, article, header, footer, div, span, p, h1, h2, h3, h4, h5, h6, dt, dd, small, strong, dl) {
+	transition:
+		background-color 320ms ease,
+		background-image 320ms ease,
+		border-color 320ms ease,
+		color 320ms ease,
+		box-shadow 320ms ease,
+		fill 320ms ease,
+		stroke 320ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	:root[data-theme-changing="true"] body,
+	:root[data-theme-changing="true"] .site-background,
+	:root[data-theme-changing="true"] .site-background::before,
+	:root[data-theme-changing="true"] .site-background::after,
+	:root[data-theme-changing="true"] .app-content :is(a, button, input, section, article, header, footer, div, span, p, h1, h2, h3, h4, h5, h6, dt, dd, small, strong, dl) {
+		transition: none;
+	}
+}
