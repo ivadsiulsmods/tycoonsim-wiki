@@ -2,6 +2,7 @@ import { error } from "@sveltejs/kit";
 import type { CatalogSection, CatalogSummaryItem, CatalogVariant, CategoryKey } from "$lib/types";
 
 const SHEET_ID = "1iLCa9vykk5DKBN_JrUFIg2h34XU02hiBJp2Yzg_-5aU";
+const SECTION_CACHE_TTL_MS = 5 * 60 * 1000;
 
 const SECTION_CONFIG: Array<{
 	description: string;
@@ -33,6 +34,8 @@ const SECTION_CONFIG: Array<{
 	}
 ];
 
+type SectionConfig = (typeof SECTION_CONFIG)[number];
+
 type RawCatalogItem = {
 	category: CategoryKey;
 	categoryLabel: string;
@@ -47,6 +50,14 @@ type RawCatalogItem = {
 	searchText: string;
 	variant: string;
 };
+
+type SectionCacheEntry = {
+	expiresAt: number;
+	section: CatalogSection;
+};
+
+const sectionCache = new Map<CategoryKey, SectionCacheEntry>();
+const inFlightSectionLoads = new Map<CategoryKey, Promise<CatalogSection>>();
 
 const variantPriority = ["N/A", "Shiny", "Mythic", "Shiny Mythic"];
 
@@ -76,17 +87,7 @@ const normalizeLabel = (label: string): string => {
 	return normalized;
 };
 
-const normalizeObtainmentMethod = (value: string): string => {
-	if (isNotAvailable(value)) {
-		return value;
-	}
-
-	return value
-		.replace(/^obtained from\s+/i, "")
-		.replace(/^obtained through\s+/i, "")
-		.trim()
-		.toLowerCase();
-};
+const normalizeSearchText = (value: string): string => value.trim().toLowerCase();
 
 const slugify = (value: string): string =>
 	value
@@ -228,15 +229,12 @@ const normalizeSection = (
 
 			const variant = rowMap["Variant"] ?? "N/A";
 			const rarity = rowMap["Rarity"] ?? "N/A";
-			const obtainmentMethod = normalizeObtainmentMethod(rowMap["Obtainment Method"] ?? "N/A");
+			const obtainmentMethod = rowMap["Obtainment Method"] ?? "N/A";
 			const details = columns
 				.filter((column) => column !== "Name" && column !== "Variant")
 				.map((column) => ({
 					label: normalizeLabel(column),
-					value:
-						column === "Obtainment Method"
-							? normalizeObtainmentMethod(rowMap[column] ?? "N/A")
-							: rowMap[column] ?? "N/A"
+					value: rowMap[column] ?? "N/A"
 				}));
 
 			return {
@@ -247,7 +245,7 @@ const normalizeSection = (
 				name,
 				obtainmentMethod,
 				rarity,
-				searchText: Object.values(rowMap).join(" ").toLowerCase(),
+				searchText: Object.values(rowMap).map(normalizeSearchText).join(" "),
 				variant
 			};
 		})
@@ -261,28 +259,74 @@ const normalizeSection = (
 	};
 };
 
-export const getCatalogSections = async (fetchFn: typeof fetch): Promise<CatalogSection[]> => {
-	const sections = await Promise.all(
-		SECTION_CONFIG.map(async (section) => {
-			const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(section.sheet)}`;
+const getSectionConfig = (category: string): SectionConfig => {
+	const section = SECTION_CONFIG.find((entry) => entry.key === category);
+
+	if (section == null) {
+		throw error(404, "category not found");
+	}
+
+	return section;
+};
+
+const loadSection = async (
+	fetchFn: typeof fetch,
+	section: SectionConfig
+): Promise<CatalogSection> => {
+	const now = Date.now();
+	const cachedSection = sectionCache.get(section.key);
+
+	if (cachedSection != null && cachedSection.expiresAt > now) {
+		return cachedSection.section;
+	}
+
+	const inFlightLoad = inFlightSectionLoads.get(section.key);
+
+	if (inFlightLoad != null) {
+		return inFlightLoad;
+	}
+
+	const sectionLoad = (async () => {
+		const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(section.sheet)}`;
+
+		try {
 			const response = await fetchFn(url);
 
 			if (response.ok === false) {
-				throw new Error(`Failed to load ${section.label} from Google Sheets.`);
+				throw new Error(`Received ${response.status} from Google Sheets.`);
 			}
 
 			const payload = await response.text();
 			const parsed = parseCsv(payload);
-
-			return normalizeSection(
+			const normalizedSection = normalizeSection(
 				section.key,
 				section.label,
 				section.description,
 				section.type,
 				parsed
 			);
-		})
-	);
+
+			sectionCache.set(section.key, {
+				expiresAt: Date.now() + SECTION_CACHE_TTL_MS,
+				section: normalizedSection
+			});
+
+			return normalizedSection;
+		} catch (cause) {
+			console.error(`Failed to load ${section.label} catalog data.`, cause);
+			throw error(503, "catalog data is temporarily unavailable");
+		} finally {
+			inFlightSectionLoads.delete(section.key);
+		}
+	})();
+
+	inFlightSectionLoads.set(section.key, sectionLoad);
+
+	return sectionLoad;
+};
+
+export const getCatalogSections = async (fetchFn: typeof fetch): Promise<CatalogSection[]> => {
+	const sections = await Promise.all(SECTION_CONFIG.map((section) => loadSection(fetchFn, section)));
 
 	return sections;
 };
@@ -292,12 +336,8 @@ export const getCatalogItemByParams = async (
 	category: string,
 	slug: string
 ): Promise<CatalogSummaryItem> => {
-	const sections = await getCatalogSections(fetchFn);
-	const section = sections.find((entry) => entry.key === category);
-
-	if (section == null) {
-		throw error(404, "category not found");
-	}
+	const sectionConfig = getSectionConfig(category);
+	const section = await loadSection(fetchFn, sectionConfig);
 
 	const item = section.items.find((entry) => entry.slug === slug);
 

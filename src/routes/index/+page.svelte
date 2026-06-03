@@ -48,14 +48,18 @@
 	const compareByName = (
 		left: CatalogSection["items"][number],
 		right: CatalogSection["items"][number]
-	): number => left.name.localeCompare(right.name);
+	): number => left.name.localeCompare(right.name, undefined, { sensitivity: "base" });
+
+	const getRarityRank = (rarity: string): number => {
+		const rarityIndex = rarityOrder.indexOf(rarity.toLowerCase());
+
+		return rarityIndex === -1 ? rarityOrder.length : rarityIndex;
+	};
 
 	const compareByRarity = (
 		left: CatalogSection["items"][number],
 		right: CatalogSection["items"][number]
-	): number =>
-		rarityOrder.indexOf(left.defaultVariant.rarity.toLowerCase()) -
-		rarityOrder.indexOf(right.defaultVariant.rarity.toLowerCase());
+	): number => getRarityRank(left.defaultVariant.rarity) - getRarityRank(right.defaultVariant.rarity);
 
 	const sortItems = (items: CatalogSection["items"]): CatalogSection["items"] => {
 		const sorted = [...items];
@@ -114,20 +118,29 @@
 		availableSortOptions.find((option) => option.key === sortKey)?.label ?? "name: a to z"
 	);
 
+	const sortedSections = $derived.by<CatalogSection[]>(() =>
+		data.sections.map((section) => ({
+			...section,
+			items: sortItems(section.items)
+		}))
+	);
+
+	const sortedAllItems = $derived(sortItems(sortedSections.flatMap((section) => section.items)));
+
 	const visibleSections = $derived.by<VisibleSection[]>(() => {
 		const normalizedQuery = query.trim().toLowerCase();
-		const filteredSections = data.sections.map((section) => {
-			const filteredItems =
-				normalizedQuery === ""
-					? section.items
-					: section.items.filter((item) => item.searchText.includes(normalizedQuery));
+		const filterItems = (items: CatalogSection["items"]): CatalogSection["items"] =>
+			normalizedQuery === ""
+				? items
+				: items.filter((item) => item.searchText.includes(normalizedQuery));
 
+		const filteredSections = sortedSections.map((section) => {
 			return {
 				...section,
-				items: sortItems(filteredItems)
+				items: filterItems(section.items)
 			};
 		});
-		const allItems = sortItems(filteredSections.flatMap((section) => section.items));
+		const allItems = filterItems(sortedAllItems);
 
 		return [
 			{

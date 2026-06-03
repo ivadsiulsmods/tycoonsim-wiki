@@ -54,7 +54,7 @@
 		color: var(--text);
 	}
 
-	:global(svg) {
+	.icon-button :global(svg) {
 		width: 1rem;
 		height: 1rem;
 	}

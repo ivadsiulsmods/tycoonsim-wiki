@@ -68,9 +68,7 @@
 		margin: 0;
 		font-size: 1.22rem;
 		line-height: 1.2;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
+		overflow-wrap: anywhere;
 	}
 
 	dl {
@@ -89,9 +87,7 @@
 	dd {
 		margin: 0;
 		line-height: 1.5;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
+		overflow-wrap: anywhere;
 	}
 
 	.rarity-value {

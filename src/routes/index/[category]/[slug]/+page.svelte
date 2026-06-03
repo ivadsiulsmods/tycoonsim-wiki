@@ -48,34 +48,6 @@
 
 	const displayVariantName = (variant: CatalogVariant) =>
 		variant.variant === "N/A" ? "base" : variant.variant.toLowerCase();
-
-	const isLambdaUpgrade = $derived(data.item.slug === "lambda-upgrade");
-
-	const lambdaOutcomes = $derived.by(() => {
-		if (isLambdaUpgrade === false) {
-			return [];
-		}
-
-		if (selectedVariant.variant === "Shiny") {
-			return [
-				"1/19: ×3.52",
-				"1/19: +1,100",
-				"1/19: create an explosion",
-				"1/19: set ore value to 1",
-				"1/19: ×6.6 and apply sparkle",
-				"13/19: ×2.42"
-			];
-		}
-
-		return [
-			"1/19: ×3.2",
-			"1/19: +1,000",
-			"1/19: create an explosion",
-			"1/19: set ore value to 1",
-			"1/19: ×6 and apply sparkle",
-			"13/19: ×2.2"
-		];
-	});
 </script>
 
 <svelte:head>
@@ -154,24 +126,7 @@
 			{#each selectedVariant.details as detail}
 				<div>
 					<dt>{detail.label}</dt>
-					{#if isLambdaUpgrade && detail.label === "extra effect"}
-						<dd class="lambda-effect">
-							<p class="lambda-summary">
-								each upgrade first checks
-								<span class="formula">p(destroy) = 1 - 1.5 / upgrade count</span>
-							</p>
-							<p class="lambda-summary">
-								if the ore survives, one of these outcomes happens:
-							</p>
-							<ul>
-								{#each lambdaOutcomes as outcome}
-									<li>{outcome}</li>
-								{/each}
-							</ul>
-						</dd>
-					{:else}
-						<dd>{detail.value}</dd>
-					{/if}
+					<dd>{detail.value}</dd>
 				</div>
 			{/each}
 		</dl>
@@ -329,34 +284,6 @@
 	dd {
 		margin: 0;
 		line-height: 1.5;
-	}
-
-	.lambda-effect {
-		display: grid;
-		gap: 0.7rem;
-	}
-
-	.lambda-summary {
-		margin: 0;
-	}
-
-	.formula {
-		display: inline-block;
-		margin-left: 0.45rem;
-		font-family:
-			"Cambria Math",
-			"STIX Two Math",
-			"Times New Roman",
-			serif;
-		font-size: 1.02rem;
-		color: var(--accent);
-	}
-
-	.lambda-effect ul {
-		margin: 0;
-		padding-left: 1.2rem;
-		display: grid;
-		gap: 0.35rem;
 	}
 
 	.rarity-common {
