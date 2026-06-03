@@ -6,7 +6,21 @@
 		item: CatalogSummaryItem;
 	};
 
+	type LambdaExtraEffectOutcome = {
+		description: string;
+		math: string;
+	};
+
 	const joinGameUrl = "https://www.roblox.com/games/start?placeId=123076957357158";
+	const lambdaDesmosUrl = "https://www.desmos.com/calculator/7gs3pmi3au";
+	const lambdaExtraEffectOutcomes: LambdaExtraEffectOutcome[] = [
+		{ description: "multiply the ore by 3.2", math: "1/19" },
+		{ description: "add 1,000 value", math: "1/19" },
+		{ description: "create an explosion", math: "1/19" },
+		{ description: "set the ore value to 1", math: "1/19" },
+		{ description: "multiply the ore by 6 and apply sparkle", math: "1/19" },
+		{ description: "multiply the ore by 2.2", math: "13/19" }
+	];
 
 	let { data }: { data: PageData } = $props();
 	const hasValue = (value: string): boolean => value.trim().toUpperCase() !== "N/A";
@@ -66,6 +80,9 @@
 	);
 
 	const visibleDetails = $derived(selectedVariant.details.filter((detail) => hasValue(detail.value)));
+
+	const isLambdaExtraEffectDetail = (label: string): boolean =>
+		data.item.name.toLowerCase() === "lambda upgrader" && label === "extra effect";
 </script>
 
 <svelte:head>
@@ -132,15 +149,46 @@
 					<div>
 						<dt>{detail.label}</dt>
 						<dd>
-							{#each detail.segments as segment}
-								{#if segment.href != null}
-									<a class="detail-link" href={segment.href} target="_blank" rel="noreferrer">
+							{#if isLambdaExtraEffectDetail(detail.label)}
+								<div class="lambda-extra-effect">
+									<p>
+										Each upgrade has a
+										<span class="math-text">1 - (1.5 / n)</span>
+										chance to destroy the ore, where
+										<span class="math-text">n = upgrade count</span>.
+									</p>
+									<p>If the ore survives, one of these effects happens:</p>
+									<ul>
+										{#each lambdaExtraEffectOutcomes as outcome}
+											<li>
+												<span class="math-text">{outcome.math}</span>
+												chance to {outcome.description}.
+											</li>
+										{/each}
+									</ul>
+									<p>
+										Total survival chance after
+										<span class="math-text">n</span>
+										upgrades:
+										<span class="math-text">1.5^(n - 1) / n!</span>
+									</p>
+									<p>
+										Click <a class="detail-link" href={lambdaDesmosUrl} target="_blank" rel="noreferrer"
+											>here</a
+										> to graph this formula on Desmos.
+									</p>
+								</div>
+							{:else}
+								{#each detail.segments as segment}
+									{#if segment.href != null}
+										<a class="detail-link" href={segment.href} target="_blank" rel="noreferrer">
+											{segment.text}
+										</a>
+									{:else}
 										{segment.text}
-									</a>
-								{:else}
-									{segment.text}
-								{/if}
-							{/each}
+									{/if}
+								{/each}
+							{/if}
 						</dd>
 					</div>
 				{/each}
@@ -301,6 +349,30 @@
 		margin: 0;
 		line-height: 1.5;
 		white-space: pre-wrap;
+	}
+
+	.lambda-extra-effect {
+		display: grid;
+		gap: 0.7rem;
+	}
+
+	.lambda-extra-effect p,
+	.lambda-extra-effect ul {
+		margin: 0;
+	}
+
+	.lambda-extra-effect ul {
+		padding-left: 1.15rem;
+	}
+
+	.lambda-extra-effect li + li {
+		margin-top: 0.25rem;
+	}
+
+	.math-text {
+		color: #5ea7ff;
+		font-family: "Cambria Math", "STIX Two Math", "Times New Roman", serif;
+		font-style: italic;
 	}
 
 	.detail-link {
