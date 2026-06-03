@@ -7,6 +7,7 @@
 
 	let { item }: Props = $props();
 
+	const hasValue = (value: string): boolean => value.trim().toUpperCase() !== "N/A";
 	const crate = $derived(item.defaultVariant.obtainmentMethod);
 	const variantSummary = $derived(
 		item.availableVariants.length > 0 ? item.availableVariants.join(", ") : "base only"
@@ -14,30 +15,34 @@
 	const rarityClass = $derived(
 		`rarity-${item.defaultVariant.rarity.toLowerCase().replaceAll(" ", "-")}`
 	);
+	const summaryRows = $derived(
+		[
+			hasValue(item.defaultVariant.rarity)
+				? { label: "rarity class", value: item.defaultVariant.rarity, className: "rarity-value" }
+				: null,
+			hasValue(item.categoryType) ? { label: "type", value: item.categoryType, className: "" } : null,
+			hasValue(variantSummary)
+				? { label: "shiny/mythic", value: variantSummary, className: "" }
+				: null,
+			hasValue(crate) ? { label: "crate", value: crate, className: "" } : null
+		].filter((row) => row !== null)
+	);
 </script>
 
 <a class={`summary-card ${rarityClass}`} href={`/index/${item.category}/${item.slug}`}>
 	<p class="type">{item.categoryLabel}</p>
 	<h3>{item.name}</h3>
 
-	<dl>
-	<div>
-			<dt>rarity class</dt>
-			<dd class="rarity-value">{item.defaultVariant.rarity}</dd>
-		</div>
-		<div>
-			<dt>type</dt>
-			<dd>{item.categoryType}</dd>
-		</div>
-		<div>
-			<dt>shiny/mythic</dt>
-			<dd>{variantSummary}</dd>
-		</div>
-		<div>
-			<dt>crate</dt>
-			<dd>{crate}</dd>
-		</div>
-	</dl>
+	{#if summaryRows.length > 0}
+		<dl>
+			{#each summaryRows as row}
+				<div>
+					<dt>{row.label}</dt>
+					<dd class={row.className}>{row.value}</dd>
+				</div>
+			{/each}
+		</dl>
+	{/if}
 </a>
 
 <style>

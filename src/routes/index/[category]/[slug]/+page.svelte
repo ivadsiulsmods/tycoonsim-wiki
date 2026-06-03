@@ -9,6 +9,7 @@
 	const joinGameUrl = "https://www.roblox.com/games/start?placeId=123076957357158";
 
 	let { data }: { data: PageData } = $props();
+	const hasValue = (value: string): boolean => value.trim().toUpperCase() !== "N/A";
 
 	let activeVariant = $state("N/A");
 
@@ -48,6 +49,25 @@
 
 	const displayVariantName = (variant: CatalogVariant) =>
 		variant.variant === "N/A" ? "base" : variant.variant.toLowerCase();
+
+	const summaryRows = $derived(
+		[
+			hasValue(selectedVariant.rarity)
+				? { label: "rarity class", value: selectedVariant.rarity }
+				: null,
+			hasValue(data.item.categoryType) ? { label: "type", value: data.item.categoryType } : null,
+			hasValue(selectedVariant.obtainmentMethod)
+				? { label: "crate", value: selectedVariant.obtainmentMethod }
+				: null,
+			data.item.availableVariants.length > 0
+				? { label: "available forms", value: data.item.availableVariants.join(", ") }
+				: null
+		].filter((row) => row !== null)
+	);
+
+	const visibleDetails = $derived(
+		selectedVariant.details.filter((detail) => hasValue(detail.value))
+	);
 </script>
 
 <svelte:head>
@@ -97,39 +117,27 @@
 			<span class="variant-pill">{displayVariantName(selectedVariant)}</span>
 		</div>
 
-		<div class="summary-grid">
-			<div>
-				<dt>rarity class</dt>
-				<dd>{selectedVariant.rarity}</dd>
+		{#if summaryRows.length > 0}
+			<div class="summary-grid">
+				{#each summaryRows as row}
+					<div>
+						<dt>{row.label}</dt>
+						<dd>{row.value}</dd>
+					</div>
+				{/each}
 			</div>
-			<div>
-				<dt>type</dt>
-				<dd>{data.item.categoryType}</dd>
-			</div>
-			<div>
-				<dt>crate</dt>
-				<dd>{selectedVariant.obtainmentMethod}</dd>
-			</div>
-			<div>
-				<dt>available forms</dt>
-				<dd>
-					{#if data.item.availableVariants.length > 0}
-						{data.item.availableVariants.join(", ")}
-					{:else}
-						base only
-					{/if}
-				</dd>
-			</div>
-		</div>
+		{/if}
 
-		<dl class="details-list">
-			{#each selectedVariant.details as detail}
-				<div>
-					<dt>{detail.label}</dt>
-					<dd>{detail.value}</dd>
-				</div>
-			{/each}
-		</dl>
+		{#if visibleDetails.length > 0}
+			<dl class="details-list">
+				{#each visibleDetails as detail}
+					<div>
+						<dt>{detail.label}</dt>
+						<dd>{detail.value}</dd>
+					</div>
+				{/each}
+			</dl>
+		{/if}
 	</section>
 </main>
 
