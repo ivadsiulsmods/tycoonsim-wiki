@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { onMount } from "svelte";
-	import favicon from '$lib/assets/favicon.svg';
 	import "../app.css";
 
 	let { children } = $props();
@@ -50,7 +49,6 @@
 <svelte:window onpointermove={handlePointerMove} />
 
 <svelte:head>
-	<link rel="icon" href={favicon} />
 	<script>
 		const storedTheme = localStorage.getItem("drillbit-theme");
 		const preferredTheme =
