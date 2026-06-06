@@ -1,18 +1,36 @@
 <script lang="ts">
 	import ThemeToggle from "$lib/components/ThemeToggle.svelte";
 
+	type MerchItem = {
+		imageAlt: string;
+		imageSrc: string;
+		name: string;
+		price: number;
+		url: string;
+	};
+
 	const joinGameUrl = "https://www.roblox.com/games/start?placeId=123076957357158";
-	const itemName = "I ♥ CHILI";
-	const itemPrice = 15;
-	const itemUrl = "https://www.roblox.com/catalog/110843550595158/I-CHILI";
+	const merchItems: MerchItem[] = [
+		{
+			name: "I CHILI",
+			price: 15,
+			url: "https://www.roblox.com/catalog/110843550595158/I-CHILI",
+			imageSrc: "/clothing/i-love-chili.png",
+			imageAlt: "I love chili shirt preview"
+		},
+		{
+			name: "W LEIF L DERP",
+			price: 15,
+			url: "https://www.roblox.com/catalog/116282020884077/W-LEIF-L-DERP",
+			imageSrc: "/clothing/w-leif.png",
+			imageAlt: "W LEIF L DERP shirt preview"
+		}
+	];
 </script>
 
 <svelte:head>
 	<title>merch | drillbit index</title>
-	<meta
-		name="description"
-		content="official drillbit-related roblox clothing, starting with the I love chili shirt."
-	/>
+	<meta name="description" content="official drillbit-related roblox clothing." />
 </svelte:head>
 
 <main class="merch-shell">
@@ -37,22 +55,26 @@
 		</div>
 	</section>
 
-	<section class="merch-card">
-		<div class="preview-frame">
-			<img src="/clothing/i-love-chili.png" alt="I love chili shirt preview" />
-		</div>
+	<section class="merch-grid" aria-label="merch list">
+		{#each merchItems as item}
+			<article class="merch-card">
+				<div class="preview-frame">
+					<img src={item.imageSrc} alt={item.imageAlt} />
+				</div>
 
-		<div class="merch-copy">
-			<p class="eyebrow">available now</p>
-			<h2>{itemName}</h2>
-			<div class="price-row">
-				<span>cost</span>
-				<strong>{itemPrice} Robux</strong>
-			</div>
-			<a class="primary buy-link" href={itemUrl} target="_blank" rel="noreferrer">
-				view on roblox
-			</a>
-		</div>
+				<div class="merch-copy">
+					<p class="eyebrow">available now</p>
+					<h2>{item.name}</h2>
+					<div class="price-row">
+						<span>cost</span>
+						<strong>{item.price} Robux</strong>
+					</div>
+					<a class="primary buy-link" href={item.url} target="_blank" rel="noreferrer">
+						view on roblox
+					</a>
+				</div>
+			</article>
+		{/each}
 	</section>
 </main>
 
@@ -153,10 +175,16 @@
 		line-height: 1.7;
 	}
 
+	.merch-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+		gap: 1rem;
+	}
+
 	.merch-card {
 		display: grid;
-		grid-template-columns: minmax(280px, 420px) minmax(0, 1fr);
-		gap: 1.2rem;
+		grid-template-rows: auto 1fr;
+		gap: 1rem;
 		padding: 1.4rem;
 	}
 
@@ -168,7 +196,7 @@
 	}
 
 	.preview-frame img {
-		width: min(100%, 320px);
+		width: min(100%, 280px);
 		height: auto;
 		display: block;
 	}
@@ -194,12 +222,6 @@
 	.buy-link {
 		width: fit-content;
 		margin-top: 0.25rem;
-	}
-
-	@media (max-width: 900px) {
-		.merch-card {
-			grid-template-columns: 1fr;
-		}
 	}
 
 	@media (max-width: 780px) {
