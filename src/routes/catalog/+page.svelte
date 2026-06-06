@@ -146,7 +146,7 @@
 			{
 				key: "all",
 				label: "all",
-				description: "every catalog item from every category in one view.",
+				description: "every index item from every category in one view.",
 				items: allItems
 			},
 			...filteredSections

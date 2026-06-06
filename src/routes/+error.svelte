@@ -10,13 +10,13 @@
 	<title>{status} | drillbit index</title>
 	<meta
 		name="description"
-		content={isNotFound ? "page not found." : "the catalog is temporarily unavailable."}
+		content={isNotFound ? "page not found." : "the index is temporarily unavailable."}
 	/>
 </svelte:head>
 
 <StatusPage
 	eyebrow={String(status)}
-	title={isNotFound ? "that page could not be found" : "the catalog is temporarily unavailable"}
+	title={isNotFound ? "that page could not be found" : "the index is temporarily unavailable"}
 	description={
 		isNotFound
 			? "looks like this page wandered off somewhere else. the little builder guy is confused too, so your best bet is heading back to a working page."
