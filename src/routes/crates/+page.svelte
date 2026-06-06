@@ -18,7 +18,7 @@
 	<title>drillbit crates</title>
 	<meta
 		name="description"
-		content="browse drillbit crates and jump into the droppers, upgraders, and furnaces inside each one."
+		content="browse drillbit crates."
 	/>
 </svelte:head>
 
@@ -39,7 +39,6 @@
 	<section class="catalog-top">
 		<div>
 			<h1>drillbit <span>crates</span></h1>
-			<p class="intro">crate-focused pages with costs, secret flags, and the item pools inside them.</p>
 		</div>
 
 		<div class="stats">
@@ -58,7 +57,6 @@
 		<div>
 			<p class="section-label">all crates</p>
 			<h2>{data.crates.length} results</h2>
-			<p>no filters here, just the current crate lineup.</p>
 		</div>
 	</section>
 
