@@ -18,6 +18,16 @@
 		latex: string;
 	};
 
+	type SummaryRow = {
+		label: string;
+		value: string;
+	};
+
+	type LinkedTextSegment = {
+		href?: string;
+		text: string;
+	};
+
 	const joinGameUrl = "https://www.roblox.com/games/start?placeId=123076957357158";
 	const lambdaDesmosUrl = "https://www.desmos.com/calculator/7gs3pmi3au";
 	const lambdaExtraEffectOutcomes: LambdaExtraEffectOutcome[] = [
@@ -40,6 +50,29 @@
 				String.raw`P(\text{survive after } n,\text{ using }k=2\text{ first})=\prod_{k=2}^{n}\frac{1.5}{k}=\frac{1.5^{n-1}}{n!}`
 		}
 	];
+	const crateNames = [
+		"Futuristic Crate",
+		"Advanced Crate",
+		"Factory Crate",
+		"Quarry Crate",
+		"Basic Crate"
+	];
+	const crateSlugByName = new Map(
+		crateNames.map((name) => [
+			name.toLowerCase(),
+			name
+				.toLowerCase()
+				.replace(/[^a-z0-9]+/g, "-")
+				.replace(/^-+|-+$/g, "")
+		])
+	);
+	const crateMentionPattern = new RegExp(
+		crateNames
+			.toSorted((left, right) => right.length - left.length)
+			.map((name) => name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+			.join("|"),
+		"gi"
+	);
 
 	let { data }: { data: PageData } = $props();
 	const hasValue = (value: string): boolean => value.trim().toUpperCase() !== "N/A";
@@ -83,7 +116,7 @@
 	const displayVariantName = (variant: CatalogVariant) =>
 		variant.variant === "N/A" ? "base" : variant.variant.toLowerCase();
 
-	const summaryRows = $derived(
+	const summaryRows = $derived<SummaryRow[]>(
 		[
 			hasValue(selectedVariant.rarity)
 				? { label: "rarity class", value: selectedVariant.rarity }
@@ -108,6 +141,43 @@
 			displayMode: true,
 			throwOnError: false
 		});
+
+	const linkifyCrateMentions = (value: string): LinkedTextSegment[] => {
+		const segments: LinkedTextSegment[] = [];
+		let cursor = 0;
+
+		for (const match of value.matchAll(crateMentionPattern)) {
+			const matchedText = match[0];
+			const startIndex = match.index ?? 0;
+
+			if (startIndex > cursor) {
+				segments.push({
+					text: value.slice(cursor, startIndex)
+				});
+			}
+
+			const slug = crateSlugByName.get(matchedText.toLowerCase());
+
+			if (slug == null) {
+				segments.push({ text: matchedText });
+			} else {
+				segments.push({
+					href: `/crates/${slug}`,
+					text: matchedText
+				});
+			}
+
+			cursor = startIndex + matchedText.length;
+		}
+
+		if (cursor < value.length) {
+			segments.push({
+				text: value.slice(cursor)
+			});
+		}
+
+		return segments.length > 0 ? segments : [{ text: value }];
+	};
 </script>
 
 <svelte:head>
@@ -164,7 +234,19 @@
 				{#each summaryRows as row}
 					<div>
 						<dt>{row.label}</dt>
-						<dd>{row.value}</dd>
+						<dd>
+							{#if row.label === "crate"}
+								{#each linkifyCrateMentions(row.value) as segment}
+									{#if segment.href != null}
+										<a class="detail-link" href={segment.href}>{segment.text}</a>
+									{:else}
+										{segment.text}
+									{/if}
+								{/each}
+							{:else}
+								{row.value}
+							{/if}
+						</dd>
 					</div>
 				{/each}
 			</div>
