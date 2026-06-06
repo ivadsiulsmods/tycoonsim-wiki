@@ -1,5 +1,6 @@
 import { error } from "@sveltejs/kit";
 import * as XLSX from "xlsx";
+import catalogSnapshot from "$lib/data/catalog-snapshot.json";
 import type {
 	CatalogDetailSegment,
 	CatalogSection,
@@ -13,12 +14,14 @@ const SECTION_CACHE_TTL_MS = 5 * 60 * 1000;
 
 const SECTION_CONFIG: Array<{
 	description: string;
+	gid: string;
 	key: CategoryKey;
 	label: string;
 	sheet: string;
 	type: string;
 }> = [
 	{
+		gid: "0",
 		key: "droppers",
 		label: "droppers",
 		sheet: "Droppers",
@@ -26,6 +29,7 @@ const SECTION_CONFIG: Array<{
 		description: "ore producers, variants, rarity, and crate sources."
 	},
 	{
+		gid: "702910335",
 		key: "upgraders",
 		label: "upgraders",
 		sheet: "Upgraders",
@@ -33,6 +37,7 @@ const SECTION_CONFIG: Array<{
 		description: "value boosters, effect applicators, and route planning pieces."
 	},
 	{
+		gid: "147831486",
 		key: "furnaces",
 		label: "furnaces",
 		sheet: "Furnaces",
@@ -64,11 +69,6 @@ type SectionCacheEntry = {
 	section: CatalogSection;
 };
 
-type WorkbookCacheEntry = {
-	expiresAt: number;
-	workbook: XLSX.WorkBook;
-};
-
 type ParsedSheetCell = {
 	segments: CatalogDetailSegment[];
 	value: string;
@@ -76,8 +76,7 @@ type ParsedSheetCell = {
 
 const sectionCache = new Map<CategoryKey, SectionCacheEntry>();
 const inFlightSectionLoads = new Map<CategoryKey, Promise<CatalogSection>>();
-let workbookCache: WorkbookCacheEntry | null = null;
-let inFlightWorkbookLoad: Promise<XLSX.WorkBook> | null = null;
+const fallbackSections = catalogSnapshot as CatalogSection[];
 
 const variantPriority = ["N/A", "Shiny", "Mythic", "Shiny Mythic"];
 
@@ -360,44 +359,38 @@ const normalizeSection = (
 	};
 };
 
-const loadWorkbook = async (fetchFn: typeof fetch): Promise<XLSX.WorkBook> => {
-	const now = Date.now();
+const loadSectionWorkbook = async (
+	fetchFn: typeof fetch,
+	section: SectionConfig
+): Promise<XLSX.WorkBook> => {
+	const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=xlsx&gid=${section.gid}`;
+	const requestFetch = globalThis.fetch ?? fetchFn;
+	const response = await requestFetch(url, {
+		headers: {
+			accept: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+		},
+		signal: AbortSignal.timeout(15_000)
+	});
 
-	if (workbookCache != null && workbookCache.expiresAt > now) {
-		return workbookCache.workbook;
+	if (response.ok === false) {
+		throw new Error(`Received ${response.status} from the ${section.label} sheet export.`);
 	}
 
-	if (inFlightWorkbookLoad != null) {
-		return inFlightWorkbookLoad;
+	const contentType = response.headers.get("content-type") ?? "";
+
+	if (contentType.includes("spreadsheetml.sheet") === false) {
+		const responsePreview = (await response.text()).slice(0, 160);
+		throw new Error(
+			`The ${section.label} sheet export returned "${contentType}" instead of a workbook. Response started with: ${responsePreview}`
+		);
 	}
 
-	inFlightWorkbookLoad = (async () => {
-		const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=xlsx`;
-		const response = await fetchFn(url);
+	const payload = await response.arrayBuffer();
 
-		if (response.ok === false) {
-			throw new Error(`Received ${response.status} from Google Sheets.`);
-		}
-
-		const payload = await response.arrayBuffer();
-		const workbook = XLSX.read(Buffer.from(payload), {
-			cellFormula: false,
-			type: "buffer"
-		});
-
-		workbookCache = {
-			expiresAt: Date.now() + SECTION_CACHE_TTL_MS,
-			workbook
-		};
-
-		return workbook;
-	})();
-
-	try {
-		return await inFlightWorkbookLoad;
-	} finally {
-		inFlightWorkbookLoad = null;
-	}
+	return XLSX.read(Buffer.from(payload), {
+		cellFormula: false,
+		type: "buffer"
+	});
 };
 
 const getSectionConfig = (category: string): SectionConfig => {
@@ -408,6 +401,16 @@ const getSectionConfig = (category: string): SectionConfig => {
 	}
 
 	return section;
+};
+
+const getFallbackSection = (category: CategoryKey): CatalogSection => {
+	const fallbackSection = fallbackSections.find((section) => section.key === category);
+
+	if (fallbackSection == null) {
+		throw error(503, "catalog data is temporarily unavailable");
+	}
+
+	return fallbackSection;
 };
 
 const loadSection = async (
@@ -429,11 +432,12 @@ const loadSection = async (
 
 	const sectionLoad = (async () => {
 		try {
-			const workbook = await loadWorkbook(fetchFn);
-			const sheet = workbook.Sheets[section.sheet];
+			const workbook = await loadSectionWorkbook(fetchFn, section);
+			const exportedSheetName = workbook.SheetNames[0];
+			const sheet = workbook.Sheets[section.sheet] ?? workbook.Sheets[exportedSheetName];
 
 			if (sheet == null) {
-				throw new Error(`Sheet "${section.sheet}" was not found in the workbook export.`);
+				throw new Error(`Sheet "${section.sheet}" was not found in the ${section.label} export.`);
 			}
 
 			const normalizedSection = normalizeSection(
@@ -451,8 +455,16 @@ const loadSection = async (
 
 			return normalizedSection;
 		} catch (cause) {
-			console.error(`Failed to load ${section.label} catalog data.`, cause);
-			throw error(503, "catalog data is temporarily unavailable");
+			console.error(`Failed to load ${section.label} catalog data from Google Sheets. Falling back to the bundled snapshot.`, cause);
+
+			const fallbackSection = getFallbackSection(section.key);
+
+			sectionCache.set(section.key, {
+				expiresAt: Date.now() + SECTION_CACHE_TTL_MS,
+				section: fallbackSection
+			});
+
+			return fallbackSection;
 		} finally {
 			inFlightSectionLoads.delete(section.key);
 		}
