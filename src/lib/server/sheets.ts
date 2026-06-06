@@ -135,6 +135,20 @@ const crateConfigs: CrateConfig[] = [
 		gid: "743536198",
 		spreadsheetUrl:
 			"https://docs.google.com/spreadsheets/d/1iLCa9vykk5DKBN_JrUFIg2h34XU02hiBJp2Yzg_-5aU/edit?gid=743536198#gid=743536198"
+	},
+	{
+		key: "quarry-crate",
+		label: "Quarry Crate",
+		gid: "391730752",
+		spreadsheetUrl:
+			"https://docs.google.com/spreadsheets/d/1iLCa9vykk5DKBN_JrUFIg2h34XU02hiBJp2Yzg_-5aU/edit?gid=391730752#gid=391730752"
+	},
+	{
+		key: "futuristic-crate",
+		label: "Futuristic Crate",
+		gid: "391596298",
+		spreadsheetUrl:
+			"https://docs.google.com/spreadsheets/d/1iLCa9vykk5DKBN_JrUFIg2h34XU02hiBJp2Yzg_-5aU/edit?gid=391596298#gid=391596298"
 	}
 ];
 

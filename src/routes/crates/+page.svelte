@@ -161,7 +161,6 @@
 		color: var(--accent);
 	}
 
-	.intro,
 	.section-header p {
 		margin: 0.75rem 0 0;
 		color: var(--muted);
