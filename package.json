@@ -23,6 +23,7 @@
 	},
 	"dependencies": {
 		"@lucide/svelte": "^1.17.0",
+		"katex": "^0.17.0",
 		"xlsx": "^0.18.5"
 	}
 }

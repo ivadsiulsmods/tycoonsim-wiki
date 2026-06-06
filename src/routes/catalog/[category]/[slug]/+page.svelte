@@ -1,5 +1,7 @@
 <script lang="ts">
 	import ThemeToggle from "$lib/components/ThemeToggle.svelte";
+	import "katex/dist/katex.min.css";
+	import katex from "katex";
 	import type { CatalogSummaryItem, CatalogVariant } from "$lib/types";
 
 	type PageData = {
@@ -11,6 +13,11 @@
 		math: string;
 	};
 
+	type LambdaFormula = {
+		description: string;
+		latex: string;
+	};
+
 	const joinGameUrl = "https://www.roblox.com/games/start?placeId=123076957357158";
 	const lambdaDesmosUrl = "https://www.desmos.com/calculator/7gs3pmi3au";
 	const lambdaExtraEffectOutcomes: LambdaExtraEffectOutcome[] = [
@@ -20,6 +27,18 @@
 		{ description: "set the ore value to 1", math: "1/19" },
 		{ description: "multiply the ore by 6 and apply sparkle", math: "1/19" },
 		{ description: "multiply the ore by 2.2", math: "13/19" }
+	];
+	const lambdaFormulas: LambdaFormula[] = [
+		{
+			description: "general survival chance after n uses",
+			latex:
+				String.raw`P(\text{survive after } n)=\prod_{k=1}^{n}\frac{1.5}{k}=\frac{1.5^n}{n!}`
+		},
+		{
+			description: "survival chance after n uses when the first use starts at k = 2",
+			latex:
+				String.raw`P(\text{survive after } n,\text{ using }k=2\text{ first})=\prod_{k=2}^{n}\frac{1.5}{k}=\frac{1.5^{n-1}}{n!}`
+		}
 	];
 
 	let { data }: { data: PageData } = $props();
@@ -83,6 +102,12 @@
 
 	const isLambdaExtraEffectDetail = (label: string): boolean =>
 		data.item.name.toLowerCase() === "lambda upgrader" && label === "extra effect";
+
+	const renderDisplayMath = (latex: string): string =>
+		katex.renderToString(latex, {
+			displayMode: true,
+			throwOnError: false
+		});
 </script>
 
 <svelte:head>
@@ -179,6 +204,14 @@
 											>here</a
 										> to graph this formula on Desmos.
 									</p>
+									<div class="lambda-formulas" aria-label="lambda survival formulas">
+										{#each lambdaFormulas as formula}
+											<div class="lambda-formula">
+												<span class="sr-only">{formula.description}</span>
+												{@html renderDisplayMath(formula.latex)}
+											</div>
+										{/each}
+									</div>
 								</div>
 							{:else}
 								{#each detail.segments as segment}
@@ -371,10 +404,39 @@
 		margin-top: 0.25rem;
 	}
 
+	.lambda-formulas {
+		display: grid;
+		gap: 0.6rem;
+		padding-top: 0.2rem;
+	}
+
+	.lambda-formula {
+		overflow-x: auto;
+		padding: 0.85rem 1rem;
+		border: 1px solid var(--line);
+		background: rgba(94, 167, 255, 0.08);
+	}
+
 	.math-text {
 		color: #5ea7ff;
 		font-family: "Cambria Math", "STIX Two Math", "Times New Roman", serif;
 		font-style: italic;
+	}
+
+	:global(.katex-display) {
+		margin: 0;
+	}
+
+	.sr-only {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		padding: 0;
+		margin: -1px;
+		overflow: hidden;
+		clip: rect(0, 0, 0, 0);
+		white-space: nowrap;
+		border: 0;
 	}
 
 	.detail-link {
