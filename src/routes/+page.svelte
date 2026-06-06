@@ -66,6 +66,7 @@
 			<div class="actions">
 				<a class="primary" href="/index">view index</a>
 				<a class="secondary" href="/builder">builder</a>
+				<a class="secondary" href="/extra-info">extra info</a>
 			</div>
 		</div>
 

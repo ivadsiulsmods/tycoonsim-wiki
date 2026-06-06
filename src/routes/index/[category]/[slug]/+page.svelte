@@ -97,6 +97,7 @@
 			<a class="primary top-button" href={joinGameUrl} target="_blank" rel="noreferrer"
 				>join the game</a
 			>
+			<a class="secondary top-button" href="/extra-info">extra info</a>
 			<a class="secondary top-button" href="/builder">builder</a>
 			<ThemeToggle />
 		</div>
@@ -429,7 +430,7 @@
 
 		.topbar-actions {
 			display: grid;
-			grid-template-columns: 1fr 1fr auto;
+			grid-template-columns: 1fr 1fr 1fr auto;
 		}
 
 		.detail-header {
