@@ -11,7 +11,7 @@
 	eyebrow="work in progress"
 	title="we're working on it"
 	description="the builder page is still under construction. the little guy is trying his best, but this part of the site needs more work before it can be used."
-	primaryHref="/index"
+	primaryHref="/catalog"
 	primaryLabel="go back to the index"
 	secondaryHref="/"
 	secondaryLabel="return home"

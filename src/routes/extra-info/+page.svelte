@@ -62,7 +62,7 @@
 			<a class="primary top-button" href={joinGameUrl} target="_blank" rel="noreferrer"
 				>join the game</a
 			>
-			<a class="secondary top-button" href="/index">index</a>
+			<a class="secondary top-button" href="/catalog">index</a>
 			<a class="secondary top-button" href="/builder">builder</a>
 			<ThemeToggle />
 		</div>

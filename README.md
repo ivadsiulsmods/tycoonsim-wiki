@@ -38,10 +38,10 @@ notes about parsing:
 - `/`  
   hero page for the drillbit index
 
-- `/index`  
+- `/catalog`  
   grouped catalog with category tabs, search, and sorting
 
-- `/index/[category]/[slug]`  
+- `/catalog/[category]/[slug]`  
   expanded item page with variant switching for base, shiny, mythic, and shiny mythic when available
 
 - `/builder`  
@@ -125,8 +125,8 @@ if the spreadsheet changes shape, check these areas first:
 
 - column names in [src/lib/server/sheets.ts](C:\Users\ivads\Documents\GAME-PROJECTS\RBX-PROJECTS\db-index\src\lib\server\sheets.ts)
 - shared item types in [src/lib/types.ts](C:\Users\ivads\Documents\GAME-PROJECTS\RBX-PROJECTS\db-index\src\lib\types.ts)
-- index page rendering in [src/routes/index/+page.svelte](C:\Users\ivads\Documents\GAME-PROJECTS\RBX-PROJECTS\db-index\src\routes\index\+page.svelte)
-- item detail rendering in [src/routes/index/[category]/[slug]/+page.svelte](C:\Users\ivads\Documents\GAME-PROJECTS\RBX-PROJECTS\db-index\src\routes\index\[category]\[slug]\+page.svelte)
+- index page rendering in [src/routes/catalog/+page.svelte](C:\Users\ivads\Documents\GAME-PROJECTS\RBX-PROJECTS\db-index\src\routes\catalog\+page.svelte)
+- item detail rendering in [src/routes/catalog/[category]/[slug]/+page.svelte](C:\Users\ivads\Documents\GAME-PROJECTS\RBX-PROJECTS\db-index\src\routes\catalog\[category]\[slug]\+page.svelte)
 
 ## status
 

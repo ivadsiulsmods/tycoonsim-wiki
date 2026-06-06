@@ -29,7 +29,7 @@
 	);
 </script>
 
-<a class={`summary-card ${rarityClass}`} href={`/index/${item.category}/${item.slug}`}>
+<a class={`summary-card ${rarityClass}`} href={`/catalog/${item.category}/${item.slug}`}>
 	<p class="type">{item.categoryLabel}</p>
 	<h3>{item.name}</h3>
 

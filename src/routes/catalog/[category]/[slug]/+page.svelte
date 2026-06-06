@@ -105,7 +105,7 @@
 
 	<section class="detail-top">
 		<div>
-			<a class="back-link" href="/index">back to index</a>
+			<a class="back-link" href="/catalog">back to index</a>
 			<h1>{data.item.name}</h1>
 		</div>
 	</section>

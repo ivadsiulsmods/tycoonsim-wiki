@@ -9,7 +9,7 @@ const config = {
 	kit: {
 		adapter: adapter(),
 		prerender: {
-			entries: ['*', '/index', '/builder', '/extra-info']
+			entries: ['*', '/catalog', '/builder', '/extra-info']
 			,
 			handleUnseenRoutes: 'ignore'
 		}

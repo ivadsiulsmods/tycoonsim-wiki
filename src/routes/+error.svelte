@@ -22,7 +22,7 @@
 			? "looks like this page wandered off somewhere else. the little builder guy is confused too, so your best bet is heading back to a working page."
 			: "the site could not load its spreadsheet data right now. this is usually temporary, so trying again in a moment should get things back on track."
 	}
-	primaryHref="/index"
+	primaryHref="/catalog"
 	primaryLabel={isNotFound ? "open the index" : "try the index again"}
 	secondaryHref="/"
 	secondaryLabel="return home"
