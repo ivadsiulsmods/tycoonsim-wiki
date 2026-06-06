@@ -63,6 +63,7 @@
 				>join the game</a
 			>
 			<a class="secondary top-button" href="/catalog">index</a>
+			<a class="secondary top-button" href="/crates">crates</a>
 			<a class="secondary top-button" href="/builder">builder</a>
 			<ThemeToggle />
 		</div>
@@ -271,7 +272,7 @@
 
 		.topbar-actions {
 			display: grid;
-			grid-template-columns: 1fr 1fr 1fr auto;
+			grid-template-columns: 1fr 1fr 1fr 1fr auto;
 		}
 	}
 </style>

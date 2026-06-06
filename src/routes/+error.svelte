@@ -10,17 +10,17 @@
 	<title>{status} | drillbit index</title>
 	<meta
 		name="description"
-		content={isNotFound ? "page not found." : "the catalog is temporarily unavailable."}
+		content={isNotFound ? "page not found." : "the index is temporarily unavailable."}
 	/>
 </svelte:head>
 
 <StatusPage
 	eyebrow={String(status)}
-	title={isNotFound ? "that page could not be found" : "the catalog is temporarily unavailable"}
+	title={isNotFound ? "that page could not be found" : "the index is temporarily unavailable"}
 	description={
 		isNotFound
 			? "looks like this page wandered off somewhere else. the little builder guy is confused too, so your best bet is heading back to a working page."
-			: "the site could not load its spreadsheet data right now. this is usually temporary, so trying again in a moment should get things back on track."
+			: "the site could not load its spreadsheet data right now. it may still be loading, and the first load can take up to 1 minute. this is usually temporary, so trying again in a moment should get things back on track."
 	}
 	primaryHref="/catalog"
 	primaryLabel={isNotFound ? "open the index" : "try the index again"}

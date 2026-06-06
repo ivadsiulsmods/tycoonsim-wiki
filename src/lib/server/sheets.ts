@@ -3,6 +3,9 @@ import * as XLSX from "xlsx";
 import catalogSnapshot from "$lib/data/catalog-snapshot.json";
 import type {
 	CatalogDetailSegment,
+	CrateItem,
+	CrateListEntry,
+	CrateSummaryItem,
 	CatalogSection,
 	CatalogSummaryItem,
 	CatalogVariant,
@@ -69,6 +72,36 @@ type SectionCacheEntry = {
 	section: CatalogSection;
 };
 
+type CrateConfig = {
+	gid: string;
+	key: string;
+	label: string;
+	spreadsheetUrl: string;
+};
+
+type CrateCacheEntry = {
+	crates: CrateItem[];
+	expiresAt: number;
+};
+
+type GoogleVisualizationCell = {
+	f?: string;
+	v?: boolean | number | string;
+};
+
+type GoogleVisualizationRow = {
+	c: Array<GoogleVisualizationCell | null>;
+};
+
+type GoogleVisualizationPayload = {
+	status: string;
+	table?: {
+		cols: Array<{
+			label: string;
+		}>;
+		rows: GoogleVisualizationRow[];
+	};
+};
 type ParsedSheetCell = {
 	segments: CatalogDetailSegment[];
 	value: string;
@@ -77,8 +110,33 @@ type ParsedSheetCell = {
 const sectionCache = new Map<CategoryKey, SectionCacheEntry>();
 const inFlightSectionLoads = new Map<CategoryKey, Promise<CatalogSection>>();
 const fallbackSections = catalogSnapshot as CatalogSection[];
+let crateCache: CrateCacheEntry | null = null;
+let inFlightCrateLoad: Promise<CrateItem[]> | null = null;
 
 const variantPriority = ["N/A", "Shiny", "Mythic", "Shiny Mythic"];
+const crateConfigs: CrateConfig[] = [
+	{
+		key: "basic-crate",
+		label: "Basic Crate",
+		gid: "1551521706",
+		spreadsheetUrl:
+			"https://docs.google.com/spreadsheets/d/1iLCa9vykk5DKBN_JrUFIg2h34XU02hiBJp2Yzg_-5aU/edit?gid=1551521706#gid=1551521706"
+	},
+	{
+		key: "advanced-crate",
+		label: "Advanced Crate",
+		gid: "971720418",
+		spreadsheetUrl:
+			"https://docs.google.com/spreadsheets/d/1iLCa9vykk5DKBN_JrUFIg2h34XU02hiBJp2Yzg_-5aU/edit?gid=971720418#gid=971720418"
+	},
+	{
+		key: "factory-crate",
+		label: "Factory Crate",
+		gid: "743536198",
+		spreadsheetUrl:
+			"https://docs.google.com/spreadsheets/d/1iLCa9vykk5DKBN_JrUFIg2h34XU02hiBJp2Yzg_-5aU/edit?gid=743536198#gid=743536198"
+	}
+];
 
 const isNotAvailable = (value: string | null | undefined): boolean => {
 	return typeof value === "string" && value.trim() === "N/A";
@@ -188,6 +246,137 @@ const parseSheetCell = (cell: XLSX.CellObject | undefined): ParsedSheetCell => {
 	return {
 		segments,
 		value: toDisplayValue(segments.map((segment) => segment.text).join(""))
+	};
+};
+
+const parseGvizPayload = (payload: string): GoogleVisualizationPayload => {
+	const match = payload.match(/google\.visualization\.Query\.setResponse\(([\s\S]+)\);/);
+
+	if (match == null) {
+		throw new Error("Google visualization payload could not be parsed.");
+	}
+
+	return JSON.parse(match[1]) as GoogleVisualizationPayload;
+};
+
+const gvizCellToString = (cell: GoogleVisualizationCell | null | undefined): string => {
+	if (cell == null) {
+		return "";
+	}
+
+	if (typeof cell.f === "string" && cell.f.trim() !== "") {
+		return cell.f;
+	}
+
+	if (typeof cell.v === "boolean") {
+		return cell.v === true ? "true" : "false";
+	}
+
+	if (cell.v == null) {
+		return "";
+	}
+
+	return cell.v.toString();
+};
+
+const dedupeCrateEntries = (entries: CrateListEntry[]): CrateListEntry[] => {
+	const seen = new Set<string>();
+	const result: CrateListEntry[] = [];
+
+	for (const entry of entries) {
+		const normalizedName = entry.name.trim().toLowerCase();
+
+		if (normalizedName === "" || seen.has(normalizedName)) {
+			continue;
+		}
+
+		seen.add(normalizedName);
+		result.push(entry);
+	}
+
+	return result;
+};
+
+const parseCrateCost = (label: string): string => {
+	const match = label.match(/Cost:\s*(.+?)\s+Dropper Name$/i);
+
+	if (match == null) {
+		return "N/A";
+	}
+
+	return match[1].trim();
+};
+
+const parseCrateSheet = (
+	config: CrateConfig,
+	payload: GoogleVisualizationPayload
+): CrateItem => {
+	const columns = payload.table?.cols ?? [];
+	const rows = payload.table?.rows ?? [];
+	const cost = parseCrateCost(columns[0]?.label ?? "");
+	const itemGroups: Record<CategoryKey, CrateListEntry[]> = {
+		droppers: [],
+		upgraders: [],
+		furnaces: []
+	};
+	let hasSecret = false;
+	let currentSection: CategoryKey = "droppers";
+
+	for (const row of rows) {
+		const values = row.c.map(gvizCellToString);
+		const firstValue = values[0]?.trim() ?? "";
+		const normalizedFirstValue = firstValue.toLowerCase();
+
+		if (values.some((value) => value.trim().toLowerCase() === "secret")) {
+			hasSecret = true;
+		}
+
+		if (normalizedFirstValue === "" || normalizedFirstValue === "name") {
+			continue;
+		}
+
+		if (normalizedFirstValue === "furnaces") {
+			currentSection = "furnaces";
+			continue;
+		}
+
+		if (normalizedFirstValue === "upgraders") {
+			currentSection = "upgraders";
+			continue;
+		}
+
+		if (normalizedFirstValue === "droppers") {
+			currentSection = "droppers";
+			continue;
+		}
+
+		itemGroups[currentSection].push({
+			category: currentSection,
+			name: firstValue,
+			slug: slugify(firstValue)
+		});
+	}
+
+	const droppers = dedupeCrateEntries(itemGroups.droppers);
+	const upgraders = dedupeCrateEntries(itemGroups.upgraders);
+	const furnaces = dedupeCrateEntries(itemGroups.furnaces);
+
+	return {
+		cost,
+		hasSecret,
+		itemCounts: {
+			droppers: droppers.length,
+			upgraders: upgraders.length,
+			furnaces: furnaces.length
+		},
+		items: {
+			droppers,
+			upgraders,
+			furnaces
+		},
+		name: config.label,
+		slug: config.key,
+		spreadsheetUrl: config.spreadsheetUrl
 	};
 };
 
@@ -393,6 +582,55 @@ const loadSectionWorkbook = async (
 	});
 };
 
+const loadCrates = async (fetchFn: typeof fetch): Promise<CrateItem[]> => {
+	const now = Date.now();
+
+	if (crateCache != null && crateCache.expiresAt > now) {
+		return crateCache.crates;
+	}
+
+	if (inFlightCrateLoad != null) {
+		return inFlightCrateLoad;
+	}
+
+	inFlightCrateLoad = (async () => {
+		try {
+			const crates = await Promise.all(
+				crateConfigs.map(async (config) => {
+					const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=${config.gid}`;
+					const response = await fetchFn(url);
+
+					if (response.ok === false) {
+						throw new Error(`Received ${response.status} from Google Sheets.`);
+					}
+
+					const payload = parseGvizPayload(await response.text());
+
+					if (payload.status !== "ok" || payload.table == null) {
+						throw new Error(`Crate sheet "${config.label}" did not return tabular data.`);
+					}
+
+					return parseCrateSheet(config, payload);
+				})
+			);
+
+			crateCache = {
+				crates,
+				expiresAt: Date.now() + SECTION_CACHE_TTL_MS
+			};
+
+			return crates;
+		} catch (cause) {
+			console.error("Failed to load crate catalog data.", cause);
+			throw error(503, "crate data is temporarily unavailable");
+		} finally {
+			inFlightCrateLoad = null;
+		}
+	})();
+
+	return inFlightCrateLoad;
+};
+
 const getSectionConfig = (category: string): SectionConfig => {
 	const section = SECTION_CONFIG.find((entry) => entry.key === category);
 
@@ -496,4 +734,21 @@ export const getCatalogItemByParams = async (
 	}
 
 	return item;
+};
+
+export const getCrates = async (fetchFn: typeof fetch): Promise<CrateSummaryItem[]> => {
+	const crates = await loadCrates(fetchFn);
+
+	return crates.map(({ items, ...crate }) => crate);
+};
+
+export const getCrateBySlug = async (fetchFn: typeof fetch, slug: string): Promise<CrateItem> => {
+	const crates = await loadCrates(fetchFn);
+	const crate = crates.find((entry) => entry.slug === slug);
+
+	if (crate == null) {
+		throw error(404, "crate not found");
+	}
+
+	return crate;
 };

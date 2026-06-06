@@ -146,7 +146,7 @@
 			{
 				key: "all",
 				label: "all",
-				description: "every catalog item from every category in one view.",
+				description: "every index item from every category in one view.",
 				items: allItems
 			},
 			...filteredSections
@@ -174,6 +174,7 @@
 				>join the game</a
 			>
 			<a class="secondary top-button" href="/extra-info">extra info</a>
+			<a class="secondary top-button" href="/crates">crates</a>
 			<a class="secondary top-button" href="/builder">builder</a>
 			<ThemeToggle />
 		</div>
