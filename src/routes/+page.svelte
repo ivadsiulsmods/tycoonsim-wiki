@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { Shirt } from "@lucide/svelte";
 	import ThemeToggle from "$lib/components/ThemeToggle.svelte";
 
 	const joinGameUrl = "https://www.roblox.com/games/start?placeId=123076957357158";
@@ -34,7 +35,12 @@
 
 <main class="hero-shell">
 	<header class="topbar">
-		<a class="brand" href="/">drillbit index</a>
+		<div class="brand-cluster">
+			<a class="brand" href="/">drillbit index</a>
+			<a class="merch-link" href="/merch" aria-label="open merch">
+				<Shirt size={16} strokeWidth={2.2} />
+			</a>
+		</div>
 		<div class="topbar-actions">
 			<a class="primary top-button" href={joinGameUrl} target="_blank" rel="noreferrer"
 				>join the game</a
@@ -119,7 +125,14 @@
 		padding: 0.5rem 0 1.5rem;
 	}
 
+	.brand-cluster {
+		display: flex;
+		align-items: center;
+		gap: 0.55rem;
+	}
+
 	.brand,
+	.merch-link,
 	.secondary,
 	.top-button {
 		border: 1px solid var(--border);
@@ -133,6 +146,20 @@
 		color: var(--text);
 		font-size: 0.95rem;
 		text-transform: lowercase;
+	}
+
+	.merch-link {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 2.9rem;
+		height: 2.9rem;
+		color: var(--text);
+	}
+
+	.merch-link:hover {
+		border-color: var(--border-strong);
+		color: var(--accent);
 	}
 
 	.topbar-actions {
@@ -307,6 +334,10 @@
 		.topbar {
 			flex-direction: column;
 			align-items: stretch;
+		}
+
+		.brand-cluster {
+			justify-content: space-between;
 		}
 
 		.topbar-actions {
