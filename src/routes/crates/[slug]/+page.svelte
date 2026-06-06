@@ -21,19 +21,16 @@
 		{
 			key: "droppers",
 			label: "droppers",
-			description: "ore sources found in this crate.",
 			items: data.crate.items.droppers
 		},
 		{
 			key: "upgraders",
 			label: "upgraders",
-			description: "route pieces and value boosts found in this crate.",
 			items: data.crate.items.upgraders
 		},
 		{
 			key: "furnaces",
 			label: "furnaces",
-			description: "end-line processors found in this crate.",
 			items: data.crate.items.furnaces
 		}
 	]);
@@ -62,7 +59,6 @@
 		<div>
 			<a class="back-link" href="/crates">back to crates</a>
 			<h1>{data.crate.name}</h1>
-			<p class="intro">a crate-specific view of cost, secret status, and included item pools.</p>
 		</div>
 		<a
 			class="spreadsheet-link"
@@ -116,7 +112,6 @@
 							<p class="section-label">{section.label}</p>
 							<h3>{section.items.length} items</h3>
 						</div>
-						<p>{section.description}</p>
 					</div>
 
 					{#if section.items.length > 0}
@@ -229,7 +224,6 @@
 		font-size: 1.35rem;
 	}
 
-	.intro,
 	.crate-section-header p {
 		margin: 0.8rem 0 0;
 		color: var(--muted);
