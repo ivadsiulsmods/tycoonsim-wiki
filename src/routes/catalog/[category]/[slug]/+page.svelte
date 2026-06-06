@@ -414,7 +414,6 @@
 		overflow-x: auto;
 		padding: 0.85rem 1rem;
 		border: 1px solid var(--line);
-		background: rgba(94, 167, 255, 0.08);
 	}
 
 	.math-text {
