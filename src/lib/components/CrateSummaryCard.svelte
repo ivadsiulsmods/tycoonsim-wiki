@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { Check, X } from "@lucide/svelte";
 	import type { CrateSummaryItem } from "$lib/types";
 
 	type Props = {
@@ -9,7 +10,6 @@
 
 	const summaryRows = $derived([
 		{ label: "cost", value: crate.cost },
-		{ label: "has secret", value: crate.hasSecret ? "true" : "false" },
 		{ label: "droppers", value: crate.itemCounts.droppers.toString() },
 		{ label: "upgraders", value: crate.itemCounts.upgraders.toString() },
 		{ label: "furnaces", value: crate.itemCounts.furnaces.toString() }
@@ -21,6 +21,17 @@
 	<h3>{crate.name}</h3>
 
 	<dl>
+		<div>
+			<dt>has secret</dt>
+			<dd class={`secret-icon ${crate.hasSecret ? "is-true" : "is-false"}`}>
+				{#if crate.hasSecret}
+					<Check size={18} strokeWidth={2.4} aria-label="has secret" />
+				{:else}
+					<X size={18} strokeWidth={2.4} aria-label="no secret" />
+				{/if}
+			</dd>
+		</div>
+
 		{#each summaryRows as row}
 			<div>
 				<dt>{row.label}</dt>
@@ -81,5 +92,18 @@
 		margin: 0;
 		line-height: 1.5;
 		overflow-wrap: anywhere;
+	}
+
+	.secret-icon {
+		display: inline-flex;
+		align-items: center;
+	}
+
+	.secret-icon.is-true {
+		color: #6dde8f;
+	}
+
+	.secret-icon.is-false {
+		color: #ff7a7a;
 	}
 </style>

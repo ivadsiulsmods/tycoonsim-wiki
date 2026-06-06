@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { Check, X } from "@lucide/svelte";
 	import ThemeToggle from "$lib/components/ThemeToggle.svelte";
 	import type { CategoryKey, CrateItem, CrateListEntry } from "$lib/types";
 
@@ -88,7 +89,13 @@
 			</div>
 			<div>
 				<dt>has secret</dt>
-				<dd>{data.crate.hasSecret ? "true" : "false"}</dd>
+				<dd class={`secret-icon ${data.crate.hasSecret ? "is-true" : "is-false"}`}>
+					{#if data.crate.hasSecret}
+						<Check size={18} strokeWidth={2.4} aria-label="has secret" />
+					{:else}
+						<X size={18} strokeWidth={2.4} aria-label="no secret" />
+					{/if}
+				</dd>
 			</div>
 			<div>
 				<dt>droppers</dt>
@@ -279,6 +286,19 @@
 	dd {
 		margin: 0;
 		line-height: 1.5;
+	}
+
+	.secret-icon {
+		display: inline-flex;
+		align-items: center;
+	}
+
+	.secret-icon.is-true {
+		color: #6dde8f;
+	}
+
+	.secret-icon.is-false {
+		color: #ff7a7a;
 	}
 
 	.crate-sections {
