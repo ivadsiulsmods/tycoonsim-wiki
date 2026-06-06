@@ -65,6 +65,7 @@
 			</p>
 			<div class="actions">
 				<a class="primary" href="/catalog">view index</a>
+				<a class="secondary" href="/crates">crates</a>
 				<a class="secondary" href="/builder">builder</a>
 				<a class="secondary" href="/extra-info">extra info</a>
 			</div>

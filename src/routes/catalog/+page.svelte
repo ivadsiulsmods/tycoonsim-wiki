@@ -174,6 +174,7 @@
 				>join the game</a
 			>
 			<a class="secondary top-button" href="/extra-info">extra info</a>
+			<a class="secondary top-button" href="/crates">crates</a>
 			<a class="secondary top-button" href="/builder">builder</a>
 			<ThemeToggle />
 		</div>

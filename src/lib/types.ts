@@ -37,3 +37,22 @@ export type CatalogSection = {
 	key: CategoryKey;
 	label: string;
 };
+
+export type CrateListEntry = {
+	category: CategoryKey;
+	name: string;
+	slug: string;
+};
+
+export type CrateSummaryItem = {
+	cost: string;
+	hasSecret: boolean;
+	itemCounts: Record<CategoryKey, number>;
+	name: string;
+	slug: string;
+	spreadsheetUrl: string;
+};
+
+export type CrateItem = CrateSummaryItem & {
+	items: Record<CategoryKey, CrateListEntry[]>;
+};
