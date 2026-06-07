@@ -13,7 +13,7 @@ import type {
 } from "$lib/types";
 
 const SHEET_ID = "1iLCa9vykk5DKBN_JrUFIg2h34XU02hiBJp2Yzg_-5aU";
-const SECTION_CACHE_TTL_MS = 5 * 60 * 1000;
+const SECTION_CACHE_TTL_MS = 10 * 60 * 1000;
 
 const SECTION_CONFIG: Array<{
 	description: string;
