@@ -8,7 +8,6 @@
 	};
 
 	type CrateSection = {
-		description: string;
 		items: CrateListEntry[];
 		key: CategoryKey;
 		label: string;

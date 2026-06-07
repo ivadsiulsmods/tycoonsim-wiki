@@ -149,6 +149,13 @@ const crateConfigs: CrateConfig[] = [
 		gid: "391596298",
 		spreadsheetUrl:
 			"https://docs.google.com/spreadsheets/d/1iLCa9vykk5DKBN_JrUFIg2h34XU02hiBJp2Yzg_-5aU/edit?gid=391596298#gid=391596298"
+	},
+	{
+		key: "toxic-crate",
+		label: "Toxic Crate",
+		gid: "881230867",
+		spreadsheetUrl:
+			"https://docs.google.com/spreadsheets/d/1iLCa9vykk5DKBN_JrUFIg2h34XU02hiBJp2Yzg_-5aU/edit?gid=881230867#gid=881230867"
 	}
 ];
 
