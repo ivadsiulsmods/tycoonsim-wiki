@@ -55,7 +55,7 @@
 				the
 				<span class="hero-title-stack">
 					<span class="hero-title-label">tycoon simulator</span>
-					<span class="hero-title-struck">drillbit</span>
+					<s class="hero-title-struck">drillbit</s>
 				</span>
 				<span>index</span>
 			</h1>
@@ -239,21 +239,12 @@
 	}
 
 	.hero-title-struck {
-		position: relative;
 		display: inline-flex;
 		align-items: center;
 		color: var(--text);
-	}
-
-	.hero-title-struck::after {
-		content: "";
-		position: absolute;
-		left: -0.1em;
-		right: -0.1em;
-		top: 52%;
-		border-top: 0.085em solid var(--accent);
-		transform: translateY(-50%);
-		pointer-events: none;
+		text-decoration-color: var(--accent);
+		text-decoration-thickness: 0.08em;
+		text-decoration-skip-ink: none;
 	}
 
 	.description {
