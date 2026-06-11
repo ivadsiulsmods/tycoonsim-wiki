@@ -242,12 +242,13 @@
 		display: inline-flex;
 		align-items: center;
 		color: var(--text);
-		text-decoration-color: var(--accent);
+		text-decoration-color: var(--text);
 		text-decoration-thickness: 0.08em;
 		text-decoration-skip-ink: none;
 	}
 
 	.hero-title-blur {
+		color: var(--text);
 		filter: blur(0.055em);
 	}
 
