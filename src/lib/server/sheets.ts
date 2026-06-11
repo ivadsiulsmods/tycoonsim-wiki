@@ -128,6 +128,11 @@ let extraInfoCache: ExtraInfoCacheEntry | null = null;
 let inFlightExtraInfoLoad: Promise<ExtraInfoPageData> | null = null;
 
 const variantPriority = ["N/A", "Shiny", "Mythic", "Shiny Mythic"];
+const ignoredSpreadsheetLines = new Set([
+	"(varients will be added once",
+	"we have confirmed stats)",
+	"..."
+]);
 const crateConfigs: CrateConfig[] = [
 	{
 		key: "basic-crate",
@@ -195,16 +200,27 @@ const isNotAvailable = (value: string | null | undefined): boolean => {
 	return typeof value === "string" && value.trim() === "N/A";
 };
 
+const stripIgnoredSpreadsheetLines = (value: string): string => {
+	const filteredLines = value
+		.split(/\r?\n/)
+		.map((line) => line.trim())
+		.filter((line) => ignoredSpreadsheetLines.has(line.toLowerCase()) === false);
+
+	return filteredLines.join("\n").trim();
+};
+
 const toDisplayValue = (value: string | null | undefined): string => {
 	if (value == null) {
 		return "N/A";
 	}
 
-	if (value.trim() === "") {
+	const cleanedValue = stripIgnoredSpreadsheetLines(value);
+
+	if (cleanedValue === "") {
 		return "N/A";
 	}
 
-	return value;
+	return cleanedValue;
 };
 
 const normalizeLabel = (label: string): string => {
@@ -239,18 +255,20 @@ const mergeSegments = (segments: CatalogDetailSegment[]): CatalogDetailSegment[]
 	const merged: CatalogDetailSegment[] = [];
 
 	for (const segment of segments) {
-		if (segment.text === "") {
+		const cleanedText = stripIgnoredSpreadsheetLines(segment.text);
+
+		if (cleanedText === "") {
 			continue;
 		}
 
 		const previous = merged[merged.length - 1];
 
 		if (previous != null && previous.href === segment.href) {
-			previous.text += segment.text;
+			previous.text += cleanedText;
 			continue;
 		}
 
-		merged.push({ ...segment });
+		merged.push({ ...segment, text: cleanedText });
 	}
 
 	return merged;

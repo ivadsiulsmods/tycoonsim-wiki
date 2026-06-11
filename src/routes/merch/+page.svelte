@@ -10,9 +10,18 @@
 	};
 
 	const joinGameUrl = "https://www.roblox.com/games/start?placeId=123076957357158";
+	const HEART_EMOJI = "\u2764\uFE0F";
+
+	function normalizeMerchText(value: string): string {
+		return value
+			.replaceAll("\u2665", HEART_EMOJI)
+			.replaceAll("\u2661", HEART_EMOJI)
+			.replaceAll("\u2764", HEART_EMOJI);
+	}
+
 	const merchItems: MerchItem[] = [
 		{
-			name: "I CHILI",
+			name: "I \u2665 CHILI",
 			price: 15,
 			url: "https://www.roblox.com/catalog/110843550595158/I-CHILI",
 			imageSrc: "/clothing/i-love-chili.png",
@@ -64,7 +73,7 @@
 
 				<div class="merch-copy">
 					<p class="eyebrow">available now</p>
-					<h2>{item.name}</h2>
+					<h2>{normalizeMerchText(item.name)}</h2>
 					<div class="price-row">
 						<span>cost</span>
 						<strong>{item.price} Robux</strong>

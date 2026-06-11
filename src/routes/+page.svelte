@@ -246,12 +246,13 @@
 	}
 
 	.hero-title-struck::after {
-		content: "-";
+		content: "";
 		position: absolute;
-		inset: 50% -0.16em auto -0.16em;
-		transform: translateY(-58%);
-		color: var(--accent);
-		font-weight: 700;
+		left: -0.1em;
+		right: -0.1em;
+		top: 52%;
+		border-top: 0.085em solid var(--accent);
+		transform: translateY(-50%);
 		pointer-events: none;
 	}
 
