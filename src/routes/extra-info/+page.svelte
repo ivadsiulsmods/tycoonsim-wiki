@@ -45,7 +45,7 @@
 
 	<section class="info-grid">
 		{#each data.infoSections as section}
-			<article class="info-card">
+			<article class:codes-card={section.title === "codes"} class="info-card">
 				<h2>{section.title}</h2>
 				<dl>
 					{#each section.rows as row}
@@ -210,6 +210,15 @@
 		margin: 0;
 		color: var(--text);
 		line-height: 1.6;
+	}
+
+	.codes-card dt {
+		color: #8fb0ff;
+		letter-spacing: 0.08em;
+	}
+
+	.codes-card dd {
+		color: #ffffff;
 	}
 
 	@media (max-width: 860px) {

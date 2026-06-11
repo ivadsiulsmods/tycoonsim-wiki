@@ -51,7 +51,14 @@
 
 	<section class="hero">
 		<div class="hero-copy">
-			<h1>the drillbit <span>index</span></h1>
+			<h1>
+				the
+				<span class="hero-title-stack">
+					<span class="hero-title-label">tycoon simulator</span>
+					<span class="hero-title-struck">drillbit</span>
+				</span>
+				<span>index</span>
+			</h1>
 			<p class="description">Information collected by Minecraftwiner1, site by ivadsiuls</p>
 			<p class="supporting">
 				find info about
@@ -208,6 +215,44 @@
 
 	h1 span {
 		color: var(--accent);
+	}
+
+	.hero-title-stack {
+		position: relative;
+		display: inline-flex;
+		flex-direction: column;
+		align-items: flex-start;
+		margin: 0 0.18em;
+		padding-top: 0.5em;
+		color: var(--text);
+	}
+
+	.hero-title-label {
+		position: absolute;
+		top: 0;
+		left: 0.18em;
+		font-size: 0.18em;
+		letter-spacing: 0.14em;
+		line-height: 1;
+		color: var(--accent);
+		white-space: nowrap;
+	}
+
+	.hero-title-struck {
+		position: relative;
+		display: inline-flex;
+		align-items: center;
+		color: var(--text);
+	}
+
+	.hero-title-struck::after {
+		content: "-";
+		position: absolute;
+		inset: 50% -0.16em auto -0.16em;
+		transform: translateY(-58%);
+		color: var(--accent);
+		font-weight: 700;
+		pointer-events: none;
 	}
 
 	.description {
