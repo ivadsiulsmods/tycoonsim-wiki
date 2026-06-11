@@ -55,7 +55,7 @@
 				the
 				<span class="hero-title-stack">
 					<span class="hero-title-label">tycoon simulator</span>
-					<s class="hero-title-struck">drillbit</s>
+					<s class="hero-title-struck"><span class="hero-title-blur">drillbit</span></s>
 				</span>
 				<span>index</span>
 			</h1>
@@ -245,6 +245,10 @@
 		text-decoration-color: var(--accent);
 		text-decoration-thickness: 0.08em;
 		text-decoration-skip-ink: none;
+	}
+
+	.hero-title-blur {
+		filter: blur(0.055em);
 	}
 
 	.description {
