@@ -1,50 +1,9 @@
 <script lang="ts">
 	import ThemeToggle from "$lib/components/ThemeToggle.svelte";
-
-	type DetailRow = {
-		label: string;
-		value: string;
-	};
-
-	type InfoSection = {
-		rows: DetailRow[];
-		title: string;
-	};
+	import type { ExtraInfoPageData } from "$lib/types";
 
 	const joinGameUrl = "https://www.roblox.com/games/start?placeId=123076957357158";
-	const infoSections: InfoSection[] = [
-		{
-			title: "conveyor sizes",
-			rows: [{ label: "sizes", value: "1x1 | 1x2 | 2x2 | 2x4" }]
-		},
-		{
-			title: "odds",
-			rows: [
-				{ label: "shiny", value: "1/40, 1.1x multiplier" },
-				{ label: "mythic", value: "1/100, 1.25x multiplier" },
-				{ label: "shiny mythic", value: "1/4,000, 1.5x multiplier" }
-			]
-		},
-		{
-			title: "effects",
-			rows: [
-				{ label: "fire", value: "destroys ore after 2 seconds" },
-				{ label: "nuclear", value: "destroys ore after 3 seconds" },
-				{ label: "toxic", value: "destroys ore after 5 seconds" },
-				{ label: "derp", value: "cosmetic" },
-				{ label: "sparkles", value: "cosmetic" },
-				{ label: "rainbow", value: "cosmetic" }
-			]
-		},
-		{
-			title: "codes",
-			rows: [
-				{ label: "code 1", value: "RELEASE" },
-				{ label: "code 2", value: "MOREUNBOXES" },
-				{ label: "code 3", value: "TIZZY" }
-			]
-		}
-	];
+	let { data }: { data: ExtraInfoPageData } = $props();
 </script>
 
 <svelte:head>
@@ -80,12 +39,12 @@
 
 		<div class="plot-card">
 			<span>max plot size</span>
-			<strong>28x28</strong>
+			<strong>{data.maxPlotSize}</strong>
 		</div>
 	</section>
 
 	<section class="info-grid">
-		{#each infoSections as section}
+		{#each data.infoSections as section}
 			<article class="info-card">
 				<h2>{section.title}</h2>
 				<dl>

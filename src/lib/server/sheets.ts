@@ -9,7 +9,10 @@ import type {
 	CatalogSection,
 	CatalogSummaryItem,
 	CatalogVariant,
-	CategoryKey
+	CategoryKey,
+	ExtraInfoPageData,
+	ExtraInfoRow,
+	ExtraInfoSection
 } from "$lib/types";
 
 const SHEET_ID = "1iLCa9vykk5DKBN_JrUFIg2h34XU02hiBJp2Yzg_-5aU";
@@ -84,6 +87,15 @@ type CrateCacheEntry = {
 	expiresAt: number;
 };
 
+type ExtraInfoConfig = {
+	gid: string;
+};
+
+type ExtraInfoCacheEntry = {
+	data: ExtraInfoPageData;
+	expiresAt: number;
+};
+
 type GoogleVisualizationCell = {
 	f?: string;
 	v?: boolean | number | string;
@@ -112,6 +124,8 @@ const inFlightSectionLoads = new Map<CategoryKey, Promise<CatalogSection>>();
 const fallbackSections = catalogSnapshot as CatalogSection[];
 let crateCache: CrateCacheEntry | null = null;
 let inFlightCrateLoad: Promise<CrateItem[]> | null = null;
+let extraInfoCache: ExtraInfoCacheEntry | null = null;
+let inFlightExtraInfoLoad: Promise<ExtraInfoPageData> | null = null;
 
 const variantPriority = ["N/A", "Shiny", "Mythic", "Shiny Mythic"];
 const crateConfigs: CrateConfig[] = [
@@ -156,8 +170,26 @@ const crateConfigs: CrateConfig[] = [
 		gid: "881230867",
 		spreadsheetUrl:
 			"https://docs.google.com/spreadsheets/d/1iLCa9vykk5DKBN_JrUFIg2h34XU02hiBJp2Yzg_-5aU/edit?gid=881230867#gid=881230867"
+	},
+	{
+		key: "desert-crate",
+		label: "Desert Crate",
+		gid: "266360237",
+		spreadsheetUrl:
+			"https://docs.google.com/spreadsheets/d/1iLCa9vykk5DKBN_JrUFIg2h34XU02hiBJp2Yzg_-5aU/edit?gid=266360237#gid=266360237"
+	},
+	{
+		key: "fantasy-crate",
+		label: "Fantasy Crate",
+		gid: "358255744",
+		spreadsheetUrl:
+			"https://docs.google.com/spreadsheets/d/1iLCa9vykk5DKBN_JrUFIg2h34XU02hiBJp2Yzg_-5aU/edit?gid=358255744#gid=358255744"
 	}
 ];
+
+const extraInfoConfig: ExtraInfoConfig = {
+	gid: "357911461"
+};
 
 const isNotAvailable = (value: string | null | undefined): boolean => {
 	return typeof value === "string" && value.trim() === "N/A";
@@ -298,6 +330,226 @@ const gvizCellToString = (cell: GoogleVisualizationCell | null | undefined): str
 	}
 
 	return cell.v.toString();
+};
+
+const compactWhitespace = (value: string): string => value.replace(/\s+/g, " ").trim();
+
+const normalizeExtraInfoSectionTitle = (value: string): string => {
+	const normalized = compactWhitespace(value).replace(/:$/, "");
+
+	if (normalized.toLowerCase() === "odds") {
+		return "odds";
+	}
+
+	if (normalized.toLowerCase() === "effects") {
+		return "effects";
+	}
+
+	if (normalized.toLowerCase() === "codes") {
+		return "codes";
+	}
+
+	return normalized.toLowerCase();
+};
+
+const parseExtraInfoOddsRow = (value: string): ExtraInfoRow | null => {
+	const match = value.match(/^(.+?)\s+odds\s+(.+?)\s+([0-9.]+x\s+multi)$/i);
+
+	if (match == null) {
+		return null;
+	}
+
+	return {
+		label: compactWhitespace(match[1]).toLowerCase(),
+		value: `${compactWhitespace(match[2])}, ${compactWhitespace(match[3]).replace(/multi$/i, "multiplier")}`
+	};
+};
+
+const parseExtraInfoSimplePair = (value: string): ExtraInfoRow | null => {
+	const words = compactWhitespace(value).split(" ");
+
+	if (words.length < 2) {
+		return null;
+	}
+
+	return {
+		label: words[0].toLowerCase(),
+		value: words.slice(1).join(" ")
+	};
+};
+
+const parseExtraInfoCodeRows = (rows: string[], startIndex: number): { nextIndex: number; rows: ExtraInfoRow[] } => {
+	const parsedRows: ExtraInfoRow[] = [];
+	let index = startIndex;
+
+	while (index < rows.length) {
+		const label = rows[index];
+
+		if (label === "") {
+			index += 1;
+			continue;
+		}
+
+		const normalizedLabel = normalizeExtraInfoSectionTitle(label);
+
+		if (normalizedLabel === "plot size 28x28" || normalizedLabel === "coneyor size") {
+			break;
+		}
+
+		if (normalizedLabel === "odds" || normalizedLabel === "effects" || normalizedLabel === "codes") {
+			break;
+		}
+
+		const value = rows[index + 1] ?? "";
+
+		if (value === "") {
+			break;
+		}
+
+		parsedRows.push({
+			label: compactWhitespace(label).toLowerCase(),
+			value: compactWhitespace(value)
+		});
+		index += 2;
+	}
+
+	return {
+		nextIndex: index,
+		rows: parsedRows
+	};
+};
+
+const parseExtraInfoSheet = (payload: GoogleVisualizationPayload): ExtraInfoPageData => {
+	const rows = (payload.table?.rows ?? [])
+		.map((row) => compactWhitespace(row.c.map(gvizCellToString).join(" ")))
+		.filter((row) => row !== "");
+	const infoSections: ExtraInfoSection[] = [];
+	let maxPlotSize = "N/A";
+	let index = 0;
+
+	while (index < rows.length) {
+		const row = rows[index];
+		const normalizedRow = normalizeExtraInfoSectionTitle(row);
+
+		if (normalizedRow.startsWith("plot size ")) {
+			maxPlotSize = compactWhitespace(row.slice("plot size".length));
+			index += 1;
+			continue;
+		}
+
+		if (normalizedRow === "coneyor size") {
+			const conveyorRows: ExtraInfoRow[] = [];
+			index += 1;
+
+			while (index < rows.length) {
+				const value = rows[index];
+				const normalizedValue = normalizeExtraInfoSectionTitle(value);
+
+				if (normalizedValue === "odds" || normalizedValue === "effects" || normalizedValue === "codes") {
+					break;
+				}
+
+				if (value !== "") {
+					conveyorRows.push({
+						label: conveyorRows.length === 0 ? "sizes" : `size ${conveyorRows.length + 1}`,
+						value
+					});
+				}
+
+				index += 1;
+			}
+
+			if (conveyorRows.length > 0) {
+				infoSections.push({
+					rows: [
+						{
+							label: "sizes",
+							value: conveyorRows.map((entry) => entry.value).join(" | ")
+						}
+					],
+					title: "conveyor sizes"
+				});
+			}
+
+			continue;
+		}
+
+		if (normalizedRow === "odds") {
+			const oddsRows: ExtraInfoRow[] = [];
+			index += 1;
+
+			while (index < rows.length) {
+				const parsedRow = parseExtraInfoOddsRow(rows[index]);
+
+				if (parsedRow == null) {
+					break;
+				}
+
+				oddsRows.push(parsedRow);
+				index += 1;
+			}
+
+			if (oddsRows.length > 0) {
+				infoSections.push({
+					rows: oddsRows,
+					title: "odds"
+				});
+			}
+
+			continue;
+		}
+
+		if (normalizedRow === "effects") {
+			const effectRows: ExtraInfoRow[] = [];
+			index += 1;
+
+			while (index < rows.length) {
+				const normalizedValue = normalizeExtraInfoSectionTitle(rows[index]);
+
+				if (normalizedValue === "codes") {
+					break;
+				}
+
+				const parsedRow = parseExtraInfoSimplePair(rows[index]);
+
+				if (parsedRow != null) {
+					effectRows.push(parsedRow);
+				}
+
+				index += 1;
+			}
+
+			if (effectRows.length > 0) {
+				infoSections.push({
+					rows: effectRows,
+					title: "effects"
+				});
+			}
+
+			continue;
+		}
+
+		if (normalizedRow === "codes") {
+			const parsedCodes = parseExtraInfoCodeRows(rows, index + 1);
+			index = parsedCodes.nextIndex;
+
+			if (parsedCodes.rows.length > 0) {
+				infoSections.push({
+					rows: parsedCodes.rows,
+					title: "codes"
+				});
+			}
+
+			continue;
+		}
+
+		index += 1;
+	}
+
+	return {
+		infoSections,
+		maxPlotSize
+	};
 };
 
 const dedupeCrateEntries = (entries: CrateListEntry[]): CrateListEntry[] => {
@@ -652,6 +904,51 @@ const loadCrates = async (fetchFn: typeof fetch): Promise<CrateItem[]> => {
 	return inFlightCrateLoad;
 };
 
+const loadExtraInfo = async (fetchFn: typeof fetch): Promise<ExtraInfoPageData> => {
+	const now = Date.now();
+
+	if (extraInfoCache != null && extraInfoCache.expiresAt > now) {
+		return extraInfoCache.data;
+	}
+
+	if (inFlightExtraInfoLoad != null) {
+		return inFlightExtraInfoLoad;
+	}
+
+	inFlightExtraInfoLoad = (async () => {
+		try {
+			const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=${extraInfoConfig.gid}`;
+			const response = await fetchFn(url);
+
+			if (response.ok === false) {
+				throw new Error(`Received ${response.status} from Google Sheets.`);
+			}
+
+			const payload = parseGvizPayload(await response.text());
+
+			if (payload.status !== "ok" || payload.table == null) {
+				throw new Error("Extra info sheet did not return tabular data.");
+			}
+
+			const data = parseExtraInfoSheet(payload);
+
+			extraInfoCache = {
+				data,
+				expiresAt: Date.now() + SECTION_CACHE_TTL_MS
+			};
+
+			return data;
+		} catch (cause) {
+			console.error("Failed to load extra info data from Google Sheets.", cause);
+			throw error(503, "extra info is temporarily unavailable");
+		} finally {
+			inFlightExtraInfoLoad = null;
+		}
+	})();
+
+	return inFlightExtraInfoLoad;
+};
+
 const getSectionConfig = (category: string): SectionConfig => {
 	const section = SECTION_CONFIG.find((entry) => entry.key === category);
 
@@ -772,4 +1069,8 @@ export const getCrateBySlug = async (fetchFn: typeof fetch, slug: string): Promi
 	}
 
 	return crate;
+};
+
+export const getExtraInfo = async (fetchFn: typeof fetch): Promise<ExtraInfoPageData> => {
+	return loadExtraInfo(fetchFn);
 };

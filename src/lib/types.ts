@@ -56,3 +56,18 @@ export type CrateSummaryItem = {
 export type CrateItem = CrateSummaryItem & {
 	items: Record<CategoryKey, CrateListEntry[]>;
 };
+
+export type ExtraInfoRow = {
+	label: string;
+	value: string;
+};
+
+export type ExtraInfoSection = {
+	rows: ExtraInfoRow[];
+	title: string;
+};
+
+export type ExtraInfoPageData = {
+	infoSections: ExtraInfoSection[];
+	maxPlotSize: string;
+};
