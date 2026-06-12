@@ -51,7 +51,7 @@
 
 	<section class="hero">
 		<div class="hero-copy">
-			<h1>the tycoon simulator wiki</h1>
+			<h1>the tycoon simulator <span>wiki</span></h1>
 			<p class="description">Information collected by Minecraftwiner1, site by ivadsiuls</p>
 			<p class="supporting">
 				find info about
@@ -204,6 +204,10 @@
 		line-height: 1;
 		letter-spacing: -0.06em;
 		text-transform: lowercase;
+	}
+
+	h1 span {
+		color: var(--accent);
 	}
 
 	.description {
