@@ -26,7 +26,7 @@
 </script>
 
 <svelte:head>
-	<title>The Drillbit Index</title>
+	<title>Tycoon Simulator Wiki</title>
 	<meta
 		name="description"
 		content="Information collected by Minecraftwiner1, site by ivadsiuls"
@@ -36,7 +36,7 @@
 <main class="hero-shell">
 	<header class="topbar">
 		<div class="brand-cluster">
-			<a class="brand" href="/">drillbit index</a>
+			<a class="brand" href="/">tycoon sim wiki</a>
 			<a class="merch-link" href="/merch" aria-label="open merch">
 				<Shirt size={16} strokeWidth={2.2} />
 			</a>
@@ -55,9 +55,9 @@
 				the
 				<span class="hero-title-stack">
 					<span class="hero-title-label">tycoon simulator</span>
-					<s class="hero-title-struck"><span class="hero-title-blur">drillbit</span></s>
+					<s class="hero-title-struck"><span class="hero-title-blur">wiki</span></s>
 				</span>
-				<span>index</span>
+				<span>wiki</span>
 			</h1>
 			<p class="description">Information collected by Minecraftwiner1, site by ivadsiuls</p>
 			<p class="supporting">
@@ -74,7 +74,7 @@
 				>
 					every*
 				</button>
-				drillbit item
+				tycoon simulator item
 			</p>
 			<div class="actions">
 				<a class="primary" href="/catalog">view index</a>

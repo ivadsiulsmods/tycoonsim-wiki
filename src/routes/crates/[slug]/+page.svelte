@@ -37,13 +37,13 @@
 </script>
 
 <svelte:head>
-	<title>{data.crate.name} | drillbit crates</title>
+	<title>{data.crate.name} | tycoon sim crates</title>
 	<meta name="description" content={`view the contents of ${data.crate.name}.`} />
 </svelte:head>
 
 <main class="detail-shell">
 	<header class="topbar">
-		<a class="brand" href="/">drillbit index</a>
+		<a class="brand" href="/">tycoon sim wiki</a>
 		<div class="topbar-actions">
 			<a class="primary top-button" href={joinGameUrl} target="_blank" rel="noreferrer"
 				>join the game</a

@@ -38,13 +38,13 @@
 </script>
 
 <svelte:head>
-	<title>merch | drillbit index</title>
-	<meta name="description" content="official drillbit-related roblox clothing." />
+	<title>merch | tycoon simulator wiki</title>
+	<meta name="description" content="official tycoon simulator-related roblox clothing." />
 </svelte:head>
 
 <main class="merch-shell">
 	<header class="topbar">
-		<a class="brand" href="/">drillbit index</a>
+		<a class="brand" href="/">tycoon sim wiki</a>
 		<div class="topbar-actions">
 			<a class="primary top-button" href={joinGameUrl} target="_blank" rel="noreferrer"
 				>join the game</a

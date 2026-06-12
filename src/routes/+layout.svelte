@@ -50,7 +50,7 @@
 
 <svelte:head>
 	<script>
-		const storedTheme = localStorage.getItem("drillbit-theme");
+		const storedTheme = localStorage.getItem("tycoon-sim-wiki-theme");
 		const preferredTheme =
 			storedTheme === "light" || storedTheme === "dark"
 				? storedTheme

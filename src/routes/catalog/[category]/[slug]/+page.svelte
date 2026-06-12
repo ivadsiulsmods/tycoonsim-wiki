@@ -181,13 +181,13 @@
 </script>
 
 <svelte:head>
-	<title>{data.item.name} | drillbit index</title>
-	<meta name="description" content={`view full drillbit item info for ${data.item.name}.`} />
+	<title>{data.item.name} | tycoon simulator wiki</title>
+	<meta name="description" content={`view full tycoon simulator item info for ${data.item.name}.`} />
 </svelte:head>
 
 <main class="detail-shell">
 	<header class="topbar">
-		<a class="brand" href="/">drillbit index</a>
+		<a class="brand" href="/">tycoon sim wiki</a>
 		<div class="topbar-actions">
 			<a class="primary top-button" href={joinGameUrl} target="_blank" rel="noreferrer"
 				>join the game</a

@@ -26,7 +26,7 @@
 
 <main class="status-shell">
 	<header class="topbar">
-		<a class="brand" href="/">drillbit index</a>
+		<a class="brand" href="/">tycoon sim wiki</a>
 		<div class="topbar-actions">
 			<a class="primary top-button" href={joinGameUrl} target="_blank" rel="noreferrer"
 				>join the game</a

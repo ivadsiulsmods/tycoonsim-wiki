@@ -15,16 +15,16 @@
 </script>
 
 <svelte:head>
-	<title>drillbit crates</title>
+	<title>tycoon simulator crates</title>
 	<meta
 		name="description"
-		content="browse drillbit crates."
+		content="browse tycoon simulator crates."
 	/>
 </svelte:head>
 
 <main class="catalog-shell">
 	<header class="topbar">
-		<a class="brand" href="/">drillbit index</a>
+		<a class="brand" href="/">tycoon sim wiki</a>
 		<div class="topbar-actions">
 			<a class="primary top-button" href={joinGameUrl} target="_blank" rel="noreferrer"
 				>join the game</a
@@ -38,7 +38,7 @@
 
 	<section class="catalog-top">
 		<div>
-			<h1>drillbit <span>crates</span></h1>
+			<h1>tycoon simulator <span>crates</span></h1>
 		</div>
 
 		<div class="stats">

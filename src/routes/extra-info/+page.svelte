@@ -7,16 +7,16 @@
 </script>
 
 <svelte:head>
-	<title>extra info | drillbit index</title>
+	<title>extra info | tycoon simulator wiki</title>
 	<meta
 		name="description"
-		content="quick reference info for drillbit plot size, conveyor sizes, odds, effects, and codes."
+		content="quick reference info for tycoon simulator plot size, conveyor sizes, odds, effects, and codes."
 	/>
 </svelte:head>
 
 <main class="info-shell">
 	<header class="topbar">
-		<a class="brand" href="/">drillbit index</a>
+		<a class="brand" href="/">tycoon sim wiki</a>
 		<div class="topbar-actions">
 			<a class="primary top-button" href={joinGameUrl} target="_blank" rel="noreferrer"
 				>join the game</a

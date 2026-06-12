@@ -1,6 +1,6 @@
-# drillbit index
+# tycoon simulator wiki
 
-a sveltekit site for browsing the community-maintained drillbit item spreadsheet in a cleaner, easier-to-navigate format.
+a sveltekit site for browsing the community-maintained tycoon simulator item spreadsheet in a cleaner, easier-to-navigate format.
 
 the app currently includes:
 
@@ -15,7 +15,7 @@ the app currently includes:
 
 the catalog is loaded from this public google sheet:
 
-[drillbit index spreadsheet](https://docs.google.com/spreadsheets/d/1iLCa9vykk5DKBN_JrUFIg2h34XU02hiBJp2Yzg_-5aU/edit?gid=0#gid=0)
+[tycoon sim wiki spreadsheet](https://docs.google.com/spreadsheets/d/1iLCa9vykk5DKBN_JrUFIg2h34XU02hiBJp2Yzg_-5aU/edit?gid=0#gid=0)
 
 the app reads these tabs:
 
@@ -36,7 +36,7 @@ notes about parsing:
 ## routes
 
 - `/`  
-  hero page for the drillbit index
+  hero page for the tycoon simulator wiki
 
 - `/catalog`  
   grouped catalog with category tabs, search, and sorting

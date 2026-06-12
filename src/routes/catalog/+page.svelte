@@ -159,16 +159,16 @@
 </script>
 
 <svelte:head>
-	<title>drillbit index</title>
+	<title>tycoon simulator wiki</title>
 	<meta
 		name="description"
-		content="browse drillbit droppers, upgraders, and furnaces sourced from the live community spreadsheet."
+		content="browse tycoon simulator droppers, upgraders, and furnaces sourced from the live community spreadsheet."
 	/>
 </svelte:head>
 
 <main class="catalog-shell">
 	<header class="topbar">
-		<a class="brand" href="/">drillbit index</a>
+		<a class="brand" href="/">tycoon sim wiki</a>
 		<div class="topbar-actions">
 			<a class="primary top-button" href={joinGameUrl} target="_blank" rel="noreferrer"
 				>join the game</a
@@ -182,8 +182,8 @@
 
 	<section class="catalog-top">
 		<div>
-			<h1>the drillbit <span>index</span></h1>
-			<p class="intro">a community-made spreadsheet of most drillbit items</p>
+			<h1>the tycoon simulator <span>wiki</span></h1>
+			<p class="intro">a community-made spreadsheet of most tycoon simulator items</p>
 		</div>
 
 		<div class="stats">

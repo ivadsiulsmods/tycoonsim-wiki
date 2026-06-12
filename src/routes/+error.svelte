@@ -7,7 +7,7 @@
 </script>
 
 <svelte:head>
-	<title>{status} | drillbit index</title>
+	<title>{status} | tycoon simulator wiki</title>
 	<meta
 		name="description"
 		content={isNotFound ? "page not found." : "the index is temporarily unavailable."}

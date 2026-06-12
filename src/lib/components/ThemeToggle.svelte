@@ -28,7 +28,7 @@
 	const syncTheme = (nextTheme: ThemeMode) => {
 		theme = nextTheme;
 		document.documentElement.dataset.theme = nextTheme;
-		localStorage.setItem("drillbit-theme", nextTheme);
+		localStorage.setItem("tycoon-sim-wiki-theme", nextTheme);
 	};
 
 	const toggleTheme = () => {
@@ -37,7 +37,7 @@
 	};
 
 	onMount(() => {
-		const storedTheme = localStorage.getItem("drillbit-theme");
+		const storedTheme = localStorage.getItem("tycoon-sim-wiki-theme");
 		const preferredTheme =
 			storedTheme === "light" || storedTheme === "dark"
 				? storedTheme

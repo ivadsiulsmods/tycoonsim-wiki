@@ -3,8 +3,8 @@
 </script>
 
 <svelte:head>
-	<title>builder | drillbit index</title>
-	<meta name="description" content="the drillbit builder is still under construction." />
+	<title>builder | tycoon simulator wiki</title>
+	<meta name="description" content="the tycoon simulator builder is still under construction." />
 </svelte:head>
 
 <StatusPage
