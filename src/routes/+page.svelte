@@ -51,14 +51,7 @@
 
 	<section class="hero">
 		<div class="hero-copy">
-			<h1>
-				the
-				<span class="hero-title-stack">
-					<span class="hero-title-label">tycoon simulator</span>
-					<s class="hero-title-struck"><span class="hero-title-blur">wiki</span></s>
-				</span>
-				<span>wiki</span>
-			</h1>
+			<h1>the tycoon simulator wiki</h1>
 			<p class="description">Information collected by Minecraftwiner1, site by ivadsiuls</p>
 			<p class="supporting">
 				find info about
@@ -211,45 +204,6 @@
 		line-height: 1;
 		letter-spacing: -0.06em;
 		text-transform: lowercase;
-	}
-
-	h1 span {
-		color: var(--accent);
-	}
-
-	.hero-title-stack {
-		position: relative;
-		display: inline-flex;
-		flex-direction: column;
-		align-items: flex-start;
-		margin: 0 0.18em;
-		padding-top: 0.5em;
-		color: var(--text);
-	}
-
-	.hero-title-label {
-		position: absolute;
-		top: 0;
-		left: 0.18em;
-		font-size: 0.18em;
-		letter-spacing: 0.14em;
-		line-height: 1;
-		color: var(--accent);
-		white-space: nowrap;
-	}
-
-	.hero-title-struck {
-		display: inline-flex;
-		align-items: center;
-		color: var(--text);
-		text-decoration-color: var(--text);
-		text-decoration-thickness: 0.08em;
-		text-decoration-skip-ink: none;
-	}
-
-	.hero-title-blur {
-		color: var(--text);
-		filter: blur(0.055em);
 	}
 
 	.description {
