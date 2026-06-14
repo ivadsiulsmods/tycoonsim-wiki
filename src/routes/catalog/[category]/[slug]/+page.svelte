@@ -13,6 +13,11 @@
 		math: string;
 	};
 
+	type LambdaDescription = {
+		outcomes: LambdaExtraEffectOutcome[];
+		survivalFormulaText: string;
+	};
+
 	type LambdaFormula = {
 		description: string;
 		latex: string;
@@ -30,14 +35,29 @@
 
 	const joinGameUrl = "https://www.roblox.com/games/start?placeId=123076957357158";
 	const lambdaDesmosUrl = "https://www.desmos.com/calculator/7gs3pmi3au";
-	const lambdaExtraEffectOutcomes: LambdaExtraEffectOutcome[] = [
-		{ description: "multiply the ore by 3.2", math: "1/19" },
-		{ description: "add 1,000 value", math: "1/19" },
-		{ description: "create an explosion", math: "1/19" },
-		{ description: "set the ore value to 1", math: "1/19" },
-		{ description: "multiply the ore by 6 and apply sparkle", math: "1/19" },
-		{ description: "multiply the ore by 2.2", math: "13/19" }
-	];
+	const baseLambdaDescription: LambdaDescription = {
+		outcomes: [
+			{ description: "multiply the ore by 3.2", math: "1/19" },
+			{ description: "add 1,000 value", math: "1/19" },
+			{ description: "create an explosion", math: "1/19" },
+			{ description: "set the ore value to 1", math: "1/19" },
+			{ description: "multiply the ore by 6 and apply sparkle", math: "1/19" },
+			{ description: "multiply the ore by 2.2", math: "13/19" }
+		],
+		survivalFormulaText: "1.5^(n - 1) / n!"
+	};
+	const shinyLambdaDescription: LambdaDescription = {
+		outcomes: [
+			{ description: "multiply the ore by 3.52", math: "1/19" },
+			{ description: "add 1,100 value", math: "1/19" },
+			{ description: "create an explosion", math: "1/19" },
+			{ description: "set the ore value to 1", math: "1/19" },
+			{ description: "fling the ore and multiply it by 2.42", math: "1/19" },
+			{ description: "multiply the ore by 6.6 and apply the sparkle effect to the ore", math: "1/19" },
+			{ description: "multiply the ore by 2.42", math: "13/19" }
+		],
+		survivalFormulaText: "1.5^(n-1) / n!"
+	};
 	const lambdaFormulas: LambdaFormula[] = [
 		{
 			description: "general survival chance after n uses",
@@ -135,6 +155,9 @@
 
 	const isLambdaExtraEffectDetail = (label: string): boolean =>
 		data.item.name.toLowerCase() === "lambda upgrader" && label === "extra effect";
+	const activeLambdaDescription = $derived<LambdaDescription>(
+		selectedVariant.variant.toLowerCase() === "shiny" ? shinyLambdaDescription : baseLambdaDescription
+	);
 
 	const renderDisplayMath = (latex: string): string =>
 		katex.renderToString(latex, {
@@ -268,7 +291,7 @@
 									</p>
 									<p>If the ore survives, one of these effects happens:</p>
 									<ul>
-										{#each lambdaExtraEffectOutcomes as outcome}
+										{#each activeLambdaDescription.outcomes as outcome}
 											<li>
 												<span class="math-text">{outcome.math}</span>
 												chance to {outcome.description}.
@@ -279,7 +302,7 @@
 										Total survival chance after
 										<span class="math-text">n</span>
 										upgrades:
-										<span class="math-text">1.5^(n - 1) / n!</span>
+										<span class="math-text">{activeLambdaDescription.survivalFormulaText}</span>
 									</p>
 									<p>
 										Click <a class="detail-link" href={lambdaDesmosUrl} target="_blank" rel="noreferrer"

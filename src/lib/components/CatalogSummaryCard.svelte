@@ -17,28 +17,41 @@
 		const detail = details.find((entry) => entry.label === label);
 		return detail?.value.trim() ?? "N/A";
 	};
+	const formatCompactNumber = (value: number): string => {
+		if (Number.isInteger(value) === true) {
+			return value.toString();
+		}
+
+		return value.toFixed(2).replace(/\.?0+$/, "");
+	};
 	const formatShortNumber = (value: number): string => {
 		if (value >= 1_000_000_000_000) {
-			return `${value / 1_000_000_000_000}t`;
+			return `${formatCompactNumber(value / 1_000_000_000_000)}t`;
 		}
 
 		if (value >= 1_000_000_000) {
-			return `${value / 1_000_000_000}b`;
+			return `${formatCompactNumber(value / 1_000_000_000)}b`;
 		}
 
 		if (value >= 1_000_000) {
-			return `${value / 1_000_000}m`;
+			return `${formatCompactNumber(value / 1_000_000)}m`;
 		}
 
 		if (value >= 1_000) {
-			return `${value / 1_000}k`;
+			return `${formatCompactNumber(value / 1_000)}k`;
 		}
 
-		return value.toString();
+		return formatCompactNumber(value);
+	};
+	const stripWholeNumberDecimals = (value: string): string => {
+		return value.replace(/(?<![\d.])(\d[\d,]*)\.00\b/g, (_, whole: string) => whole);
+	};
+	const normalizeQuickStatValue = (value: string): string => {
+		return stripWholeNumberDecimals(value.trim());
 	};
 	const shortenOdds = (value: string): string => {
-		const normalized = value.trim();
-		const match = normalized.match(/^1\/([0-9,]+)$/);
+		const normalized = normalizeQuickStatValue(value);
+		const match = normalized.match(/^1\/([0-9,.]+)$/);
 
 		if (match == null) {
 			return normalized;
@@ -53,7 +66,7 @@
 		return `1/${formatShortNumber(denominator)}`;
 	};
 	const formatMultiplierValue = (value: string): string => {
-		const normalized = value.trim();
+		const normalized = normalizeQuickStatValue(value);
 
 		if (hasValue(normalized) === false || normalized === "?" || normalized.endsWith("x")) {
 			return normalized;
@@ -80,7 +93,7 @@
 			const dropSpeed = findDetailValue(details, "drop speed");
 
 			if (dropSpeed.trim() !== "") {
-				stats.push({ label: "drop speed", value: dropSpeed });
+				stats.push({ label: "drop speed", value: normalizeQuickStatValue(dropSpeed) });
 			}
 		}
 
@@ -88,7 +101,10 @@
 			if (amountValue.trim() !== "") {
 				stats.push({
 					label: typeValue === "addative" ? "amount" : "multiplier",
-					value: typeValue === "addative" ? amountValue : formatMultiplierValue(amountValue)
+					value:
+						typeValue === "addative"
+							? normalizeQuickStatValue(amountValue)
+							: formatMultiplierValue(amountValue)
 				});
 			}
 		}
@@ -106,7 +122,7 @@
 		}
 
 		if (sizeValue.trim() !== "") {
-			stats.push({ label: "size", value: sizeValue });
+			stats.push({ label: "size", value: normalizeQuickStatValue(sizeValue) });
 		}
 
 		return stats;

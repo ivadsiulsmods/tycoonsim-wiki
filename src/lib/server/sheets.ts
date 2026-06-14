@@ -96,6 +96,11 @@ type ExtraInfoCacheEntry = {
 	expiresAt: number;
 };
 
+type ExtraInfoSheetRow = {
+	cells: string[];
+	text: string;
+};
+
 type GoogleVisualizationCell = {
 	f?: string;
 	v?: boolean | number | string;
@@ -396,19 +401,23 @@ const parseExtraInfoSimplePair = (value: string): ExtraInfoRow | null => {
 	};
 };
 
-const parseExtraInfoCodeRows = (rows: string[], startIndex: number): { nextIndex: number; rows: ExtraInfoRow[] } => {
+const parseExtraInfoCodeRows = (
+	rows: ExtraInfoSheetRow[],
+	startIndex: number
+): { nextIndex: number; rows: ExtraInfoRow[] } => {
 	const parsedRows: ExtraInfoRow[] = [];
 	let index = startIndex;
 
 	while (index < rows.length) {
-		const label = rows[index];
+		const currentRow = rows[index];
+		const label = compactWhitespace(currentRow.cells[0] ?? "");
 
 		if (label === "") {
 			index += 1;
 			continue;
 		}
 
-		const normalizedLabel = normalizeExtraInfoSectionTitle(label);
+		const normalizedLabel = normalizeExtraInfoSectionTitle(currentRow.text);
 
 		if (normalizedLabel === "plot size 28x28" || normalizedLabel === "coneyor size") {
 			break;
@@ -418,7 +427,7 @@ const parseExtraInfoCodeRows = (rows: string[], startIndex: number): { nextIndex
 			break;
 		}
 
-		const value = rows[index + 1] ?? "";
+		const value = compactWhitespace(currentRow.cells[1] ?? "");
 
 		if (value === "") {
 			break;
@@ -438,15 +447,22 @@ const parseExtraInfoCodeRows = (rows: string[], startIndex: number): { nextIndex
 };
 
 const parseExtraInfoSheet = (payload: GoogleVisualizationPayload): ExtraInfoPageData => {
-	const rows = (payload.table?.rows ?? [])
-		.map((row) => compactWhitespace(row.c.map(gvizCellToString).join(" ")))
-		.filter((row) => row !== "");
+	const rows: ExtraInfoSheetRow[] = (payload.table?.rows ?? [])
+		.map((row) => {
+			const cells = row.c.map(gvizCellToString).map(compactWhitespace);
+
+			return {
+				cells,
+				text: compactWhitespace(cells.join(" "))
+			};
+		})
+		.filter((row) => row.text !== "");
 	const infoSections: ExtraInfoSection[] = [];
 	let maxPlotSize = "N/A";
 	let index = 0;
 
 	while (index < rows.length) {
-		const row = rows[index];
+		const row = rows[index].text;
 		const normalizedRow = normalizeExtraInfoSectionTitle(row);
 
 		if (normalizedRow.startsWith("plot size ")) {
@@ -460,7 +476,7 @@ const parseExtraInfoSheet = (payload: GoogleVisualizationPayload): ExtraInfoPage
 			index += 1;
 
 			while (index < rows.length) {
-				const value = rows[index];
+				const value = rows[index].text;
 				const normalizedValue = normalizeExtraInfoSectionTitle(value);
 
 				if (normalizedValue === "odds" || normalizedValue === "effects" || normalizedValue === "codes") {
@@ -497,7 +513,7 @@ const parseExtraInfoSheet = (payload: GoogleVisualizationPayload): ExtraInfoPage
 			index += 1;
 
 			while (index < rows.length) {
-				const parsedRow = parseExtraInfoOddsRow(rows[index]);
+				const parsedRow = parseExtraInfoOddsRow(rows[index].text);
 
 				if (parsedRow == null) {
 					break;
@@ -522,13 +538,13 @@ const parseExtraInfoSheet = (payload: GoogleVisualizationPayload): ExtraInfoPage
 			index += 1;
 
 			while (index < rows.length) {
-				const normalizedValue = normalizeExtraInfoSectionTitle(rows[index]);
+				const normalizedValue = normalizeExtraInfoSectionTitle(rows[index].text);
 
 				if (normalizedValue === "codes") {
 					break;
 				}
 
-				const parsedRow = parseExtraInfoSimplePair(rows[index]);
+				const parsedRow = parseExtraInfoSimplePair(rows[index].text);
 
 				if (parsedRow != null) {
 					effectRows.push(parsedRow);
