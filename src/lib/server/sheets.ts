@@ -437,7 +437,7 @@ const parseExtraInfoCodeRows = (
 			label: compactWhitespace(label).toLowerCase(),
 			value: compactWhitespace(value)
 		});
-		index += 2;
+		index += 1;
 	}
 
 	return {
