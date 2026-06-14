@@ -47,14 +47,25 @@
 		{#each data.infoSections as section}
 			<article class:codes-card={section.title === "codes"} class="info-card">
 				<h2>{section.title}</h2>
-				<dl>
-					{#each section.rows as row}
-						<div>
-							<dt>{row.label}</dt>
-							<dd>{row.value}</dd>
-						</div>
-					{/each}
-				</dl>
+				{#if section.title === "codes"}
+					<div class="codes-list">
+						{#each section.rows as row}
+							<div class="code-entry">
+								<p class="code-name">{row.label}</p>
+								<p class="code-reward">{row.value}</p>
+							</div>
+						{/each}
+					</div>
+				{:else}
+					<dl>
+						{#each section.rows as row}
+							<div>
+								<dt>{row.label}</dt>
+								<dd>{row.value}</dd>
+							</div>
+						{/each}
+					</dl>
+				{/if}
 			</article>
 		{/each}
 	</section>
@@ -217,8 +228,32 @@
 		letter-spacing: 0.08em;
 	}
 
-	.codes-card dd {
+	.codes-list {
+		display: grid;
+		gap: 0.9rem;
+	}
+
+	.code-entry {
+		display: grid;
+		gap: 0.25rem;
+		padding-top: 0.8rem;
+		border-top: 1px solid var(--line);
+	}
+
+	.code-name,
+	.code-reward {
+		margin: 0;
+	}
+
+	.code-name {
+		font-size: 0.78rem;
+		letter-spacing: 0.14em;
+		color: #8fb0ff;
+	}
+
+	.code-reward {
 		color: #ffffff;
+		line-height: 1.6;
 	}
 
 	@media (max-width: 860px) {

@@ -1,5 +1,10 @@
 <script lang="ts">
-	import type { CatalogSummaryItem } from "$lib/types";
+	import type { CatalogDetail, CatalogSummaryItem } from "$lib/types";
+
+	type QuickStat = {
+		label: string;
+		value: string;
+	};
 
 	type Props = {
 		item: CatalogSummaryItem;
@@ -8,6 +13,54 @@
 	let { item }: Props = $props();
 
 	const hasValue = (value: string): boolean => value.trim().toUpperCase() !== "N/A";
+	const findDetailValue = (details: CatalogDetail[], label: string): string => {
+		const detail = details.find((entry) => entry.label === label);
+		return detail?.value.trim() ?? "N/A";
+	};
+	const formatShortNumber = (value: number): string => {
+		if (value >= 1_000_000_000_000) {
+			return `${value / 1_000_000_000_000}t`;
+		}
+
+		if (value >= 1_000_000_000) {
+			return `${value / 1_000_000_000}b`;
+		}
+
+		if (value >= 1_000_000) {
+			return `${value / 1_000_000}m`;
+		}
+
+		if (value >= 1_000) {
+			return `${value / 1_000}k`;
+		}
+
+		return value.toString();
+	};
+	const shortenOdds = (value: string): string => {
+		const normalized = value.trim();
+		const match = normalized.match(/^1\/([0-9,]+)$/);
+
+		if (match == null) {
+			return normalized;
+		}
+
+		const denominator = Number(match[1].replaceAll(",", ""));
+
+		if (Number.isNaN(denominator) === true) {
+			return normalized;
+		}
+
+		return `1/${formatShortNumber(denominator)}`;
+	};
+	const formatMultiplierValue = (value: string): string => {
+		const normalized = value.trim();
+
+		if (hasValue(normalized) === false || normalized === "?" || normalized.endsWith("x")) {
+			return normalized;
+		}
+
+		return `${normalized}x`;
+	};
 	const crate = $derived(item.defaultVariant.obtainmentMethod);
 	const variantSummary = $derived(
 		item.availableVariants.length > 0 ? item.availableVariants.join(", ") : "base only"
@@ -15,6 +68,49 @@
 	const rarityClass = $derived(
 		`rarity-${item.defaultVariant.rarity.toLowerCase().replaceAll(" ", "-")}`
 	);
+	const quickStats = $derived.by<QuickStat[]>(() => {
+		const details = item.defaultVariant.details;
+		const stats: QuickStat[] = [];
+		const typeValue = findDetailValue(details, "type").toLowerCase();
+		const amountValue = findDetailValue(details, "amount");
+		const oddsValue = findDetailValue(details, "odds");
+		const sizeValue = findDetailValue(details, "size");
+
+		if (item.category === "droppers") {
+			const dropSpeed = findDetailValue(details, "drop speed");
+
+			if (dropSpeed.trim() !== "") {
+				stats.push({ label: "drop speed", value: dropSpeed });
+			}
+		}
+
+		if (item.category === "upgraders") {
+			if (amountValue.trim() !== "") {
+				stats.push({
+					label: typeValue === "addative" ? "amount" : "multiplier",
+					value: typeValue === "addative" ? amountValue : formatMultiplierValue(amountValue)
+				});
+			}
+		}
+
+		if (item.category === "furnaces") {
+			const multiplier = findDetailValue(details, "multiplier");
+
+			if (multiplier.trim() !== "") {
+				stats.push({ label: "multiplier", value: formatMultiplierValue(multiplier) });
+			}
+		}
+
+		if (oddsValue.trim() !== "") {
+			stats.push({ label: "odds", value: shortenOdds(oddsValue) });
+		}
+
+		if (sizeValue.trim() !== "") {
+			stats.push({ label: "size", value: sizeValue });
+		}
+
+		return stats;
+	});
 	const summaryRows = $derived(
 		[
 			hasValue(item.defaultVariant.rarity)
@@ -32,6 +128,17 @@
 <a class={`summary-card ${rarityClass}`} href={`/catalog/${item.category}/${item.slug}`}>
 	<p class="type">{item.categoryLabel}</p>
 	<h3>{item.name}</h3>
+
+	{#if quickStats.length > 0}
+		<div class="quick-stats" aria-label="quick item stats">
+			{#each quickStats as stat}
+				<div>
+					<p>{stat.label}</p>
+					<strong>{stat.value}</strong>
+				</div>
+			{/each}
+		</div>
+	{/if}
 
 	{#if summaryRows.length > 0}
 		<dl>
@@ -73,6 +180,39 @@
 		margin: 0;
 		font-size: 1.22rem;
 		line-height: 1.2;
+		overflow-wrap: anywhere;
+	}
+
+	.quick-stats {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 0.5rem;
+		padding: 0.8rem 0 0.2rem;
+		border-top: 1px solid var(--line);
+	}
+
+	.quick-stats div {
+		display: grid;
+		gap: 0.2rem;
+		padding: 0.6rem 0.65rem;
+		border: 1px solid var(--line);
+		background: color-mix(in srgb, var(--surface-soft) 70%, transparent);
+	}
+
+	.quick-stats p,
+	.quick-stats strong {
+		margin: 0;
+	}
+
+	.quick-stats p {
+		font-size: 0.68rem;
+		letter-spacing: 0.08em;
+		color: #8fb0ff;
+	}
+
+	.quick-stats strong {
+		font-size: 0.92rem;
+		line-height: 1.25;
 		overflow-wrap: anywhere;
 	}
 
