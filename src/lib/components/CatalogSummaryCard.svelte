@@ -44,14 +44,15 @@
 		return formatCompactNumber(value);
 	};
 	const stripWholeNumberDecimals = (value: string): string => {
-		return value.replace(/(?<![\d.])(\d[\d,]*)\.00\b/g, (_, whole: string) => whole);
+		return value.replace(/(\d[\d,]*)\.00\b/g, "$1");
 	};
 	const normalizeQuickStatValue = (value: string): string => {
 		return stripWholeNumberDecimals(value.trim());
 	};
 	const shortenOdds = (value: string): string => {
 		const normalized = normalizeQuickStatValue(value);
-		const match = normalized.match(/^1\/([0-9,.]+)$/);
+		const compact = normalized.replace(/\s+/g, "");
+		const match = compact.match(/^1\/([0-9,.]+)$/);
 
 		if (match == null) {
 			return normalized;
@@ -92,13 +93,13 @@
 		if (item.category === "droppers") {
 			const dropSpeed = findDetailValue(details, "drop speed");
 
-			if (dropSpeed.trim() !== "") {
+			if (hasValue(dropSpeed)) {
 				stats.push({ label: "drop speed", value: normalizeQuickStatValue(dropSpeed) });
 			}
 		}
 
 		if (item.category === "upgraders") {
-			if (amountValue.trim() !== "") {
+			if (hasValue(amountValue)) {
 				stats.push({
 					label: typeValue === "addative" ? "amount" : "multiplier",
 					value:
@@ -112,16 +113,16 @@
 		if (item.category === "furnaces") {
 			const multiplier = findDetailValue(details, "multiplier");
 
-			if (multiplier.trim() !== "") {
+			if (hasValue(multiplier)) {
 				stats.push({ label: "multiplier", value: formatMultiplierValue(multiplier) });
 			}
 		}
 
-		if (oddsValue.trim() !== "") {
+		if (hasValue(oddsValue)) {
 			stats.push({ label: "odds", value: shortenOdds(oddsValue) });
 		}
 
-		if (sizeValue.trim() !== "") {
+		if (hasValue(sizeValue)) {
 			stats.push({ label: "size", value: normalizeQuickStatValue(sizeValue) });
 		}
 
