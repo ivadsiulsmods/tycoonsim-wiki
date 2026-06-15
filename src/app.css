@@ -31,6 +31,7 @@
 	--accent: #4f7eff;
 	--accent-soft: rgba(79, 126, 255, 0.16);
 	--shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+	--site-text-transform: lowercase;
 }
 
 :root[data-theme="light"] {
@@ -57,6 +58,10 @@
 	--accent: #3d6cff;
 	--accent-soft: rgba(79, 126, 255, 0.12);
 	--shadow: 0 24px 60px rgba(40, 44, 52, 0.12);
+}
+
+:root[data-text-case="normal"] {
+	--site-text-transform: none;
 }
 
 html,

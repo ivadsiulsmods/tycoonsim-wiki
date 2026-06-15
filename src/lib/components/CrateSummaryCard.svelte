@@ -49,7 +49,7 @@
 		border: 1px solid var(--border);
 		background: var(--card-bg);
 		color: var(--text);
-		text-transform: lowercase;
+		text-transform: var(--site-text-transform);
 	}
 
 	.summary-card:hover {

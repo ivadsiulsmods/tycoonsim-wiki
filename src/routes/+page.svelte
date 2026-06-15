@@ -36,14 +36,14 @@
 <main class="hero-shell">
 	<header class="topbar">
 		<div class="brand-cluster">
-			<a class="brand" href="/">tycoon sim wiki</a>
+			<a class="brand" href="/">Tycoon Sim Wiki</a>
 			<a class="merch-link" href="/merch" aria-label="open merch">
 				<Shirt size={16} strokeWidth={2.2} />
 			</a>
 		</div>
 		<div class="topbar-actions">
 			<a class="primary top-button" href={joinGameUrl} target="_blank" rel="noreferrer"
-				>join the game</a
+				>Join the Game</a
 			>
 			<ThemeToggle />
 		</div>
@@ -51,10 +51,10 @@
 
 	<section class="hero">
 		<div class="hero-copy">
-			<h1>the tycoon simulator <span>wiki</span></h1>
+			<h1>The Tycoon Simulator <span>Wiki</span></h1>
 			<p class="description">Information collected by Minecraftwiner1, site by ivadsiuls</p>
 			<p class="supporting">
-				find info about
+				Find info about
 				<button
 					type="button"
 					class="supporting-tip-anchor"
@@ -65,15 +65,15 @@
 					onblur={hideTooltip}
 					aria-label={tooltipMessage}
 				>
-					every*
+					Every*
 				</button>
-				tycoon simulator item
+				Tycoon Simulator item
 			</p>
 			<div class="actions">
-				<a class="primary" href="/catalog">view index</a>
-				<a class="secondary" href="/crates">crates</a>
-				<a class="secondary" href="/builder">builder</a>
-				<a class="secondary" href="/extra-info">extra info</a>
+				<a class="primary" href="/catalog">View Index</a>
+				<a class="secondary" href="/crates">Crates</a>
+				<a class="secondary" href="/builder">Builder</a>
+				<a class="secondary" href="/extra-info">Extra Info</a>
 			</div>
 		</div>
 
@@ -114,7 +114,7 @@
 		display: grid;
 		align-content: start;
 		padding: 2rem 0 3rem;
-		text-transform: lowercase;
+		text-transform: var(--site-text-transform);
 	}
 
 	.topbar {
@@ -145,7 +145,7 @@
 		padding: 0.95rem 1.2rem;
 		color: var(--text);
 		font-size: 0.95rem;
-		text-transform: lowercase;
+		text-transform: var(--site-text-transform);
 	}
 
 	.merch-link {
@@ -203,7 +203,7 @@
 		font-size: clamp(3.2rem, 7vw, 5.3rem);
 		line-height: 1;
 		letter-spacing: -0.06em;
-		text-transform: lowercase;
+		text-transform: var(--site-text-transform);
 	}
 
 	h1 span {

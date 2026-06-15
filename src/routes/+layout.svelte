@@ -57,7 +57,10 @@
 				: window.matchMedia("(prefers-color-scheme: light)").matches
 					? "light"
 					: "dark";
+		const storedTextCase = localStorage.getItem("tycoon-sim-wiki-text-case");
 		document.documentElement.dataset.theme = preferredTheme;
+		document.documentElement.dataset.textCase =
+			storedTextCase === "normal" || storedTextCase === "lowercase" ? storedTextCase : "lowercase";
 	</script>
 </svelte:head>
 

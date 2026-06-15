@@ -39,10 +39,10 @@
 	let sortMenuOpen = $state(false);
 
 	const baseSortOptions: SortOption[] = [
-		{ key: "name-asc", label: "name: a to z" },
-		{ key: "name-desc", label: "name: z to a" },
-		{ key: "rarity-asc", label: "rarity: low to high" },
-		{ key: "rarity-desc", label: "rarity: high to low" }
+		{ key: "name-asc", label: "Name: A to Z" },
+		{ key: "name-desc", label: "Name: Z to A" },
+		{ key: "rarity-asc", label: "Rarity: low to high" },
+		{ key: "rarity-desc", label: "Rarity: high to low" }
 	];
 
 	const compareByName = (
@@ -110,12 +110,12 @@
 
 	const availableSortOptions = $derived<SortOption[]>(
 		activeSection === "all"
-			? [...baseSortOptions, { key: "category", label: "category" }]
+			? [...baseSortOptions, { key: "category", label: "Category" }]
 			: baseSortOptions
 	);
 
 	const activeSortLabel = $derived(
-		availableSortOptions.find((option) => option.key === sortKey)?.label ?? "name: a to z"
+		availableSortOptions.find((option) => option.key === sortKey)?.label ?? "Name: A to Z"
 	);
 
 	const sortedSections = $derived.by<CatalogSection[]>(() =>
@@ -145,8 +145,8 @@
 		return [
 			{
 				key: "all",
-				label: "all",
-				description: "every index item from every category in one view.",
+				label: "All",
+				description: "Every index item from every category in one view.",
 				items: allItems
 			},
 			...filteredSections
@@ -168,32 +168,32 @@
 
 <main class="catalog-shell">
 	<header class="topbar">
-		<a class="brand" href="/">tycoon sim wiki</a>
+		<a class="brand" href="/">Tycoon Sim Wiki</a>
 		<div class="topbar-actions">
 			<a class="primary top-button" href={joinGameUrl} target="_blank" rel="noreferrer"
-				>join the game</a
+				>Join the Game</a
 			>
-			<a class="secondary top-button" href="/extra-info">extra info</a>
-			<a class="secondary top-button" href="/crates">crates</a>
-			<a class="secondary top-button" href="/builder">builder</a>
+			<a class="secondary top-button" href="/extra-info">Extra Info</a>
+			<a class="secondary top-button" href="/crates">Crates</a>
+			<a class="secondary top-button" href="/builder">Builder</a>
 			<ThemeToggle />
 		</div>
 	</header>
 
 	<section class="catalog-top">
 		<div>
-			<h1>the tycoon simulator <span>wiki</span></h1>
-			<p class="intro">a community-made spreadsheet of most tycoon simulator items</p>
+			<h1>The Tycoon Simulator <span>Wiki</span></h1>
+			<p class="intro">A community-made spreadsheet of most Tycoon Simulator items</p>
 		</div>
 
 		<div class="stats">
 			<div>
 				<strong>{data.totalItems}</strong>
-				<span>unique items</span>
+				<span>Unique items</span>
 			</div>
 			<div>
 				<strong>{data.sections.length}</strong>
-				<span>categories</span>
+				<span>Categories</span>
 			</div>
 		</div>
 	</section>
@@ -228,7 +228,7 @@
 					sortMenuOpen = false;
 				}}
 			>
-				<span>sort by</span>
+				<span>Sort by</span>
 				<button
 					type="button"
 					class="sort-trigger"
@@ -257,7 +257,7 @@
 							>
 								<span>{option.label}</span>
 								{#if option.key === sortKey}
-									<small>active</small>
+									<small>Active</small>
 								{/if}
 							</button>
 						{/each}
@@ -267,8 +267,8 @@
 		</div>
 
 		<label class="search">
-			<span>search items</span>
-			<input bind:value={query} placeholder="type a name, rarity, effect, or crate..." />
+			<span>Search items</span>
+			<input bind:value={query} placeholder="Type a name, rarity, effect, or crate..." />
 		</label>
 	</section>
 
@@ -288,8 +288,8 @@
 			</section>
 		{:else}
 			<div class="empty-state">
-				<h3>no items match that search.</h3>
-				<p>try a broader item name, rarity, effect, or crate keyword.</p>
+				<h3>No items match that search.</h3>
+				<p>Try a broader item name, rarity, effect, or crate keyword.</p>
 			</div>
 		{/if}
 	{/if}
@@ -302,7 +302,7 @@
 		padding: 2rem 0 3rem;
 		display: grid;
 		gap: 1.35rem;
-		text-transform: lowercase;
+		text-transform: var(--site-text-transform);
 	}
 
 	.topbar {
@@ -328,7 +328,7 @@
 		padding: 0.95rem 1.2rem;
 		color: var(--text);
 		font-size: 0.95rem;
-		text-transform: lowercase;
+		text-transform: var(--site-text-transform);
 	}
 
 	.topbar-actions {
@@ -384,7 +384,7 @@
 
 	h1 {
 		font-size: clamp(2.4rem, 5vw, 4.2rem);
-		text-transform: lowercase;
+		text-transform: var(--site-text-transform);
 	}
 
 	h2 {

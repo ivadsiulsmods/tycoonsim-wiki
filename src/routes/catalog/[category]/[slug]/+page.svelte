@@ -1,5 +1,7 @@
 <script lang="ts">
+	import { onMount } from "svelte";
 	import ThemeToggle from "$lib/components/ThemeToggle.svelte";
+	import { BASE_LUCK_STORAGE_KEY, DEFAULT_BASE_LUCK, readStoredBaseLuck } from "$lib/client-settings";
 	import "katex/dist/katex.min.css";
 	import katex from "katex";
 	import type { CatalogSummaryItem, CatalogVariant } from "$lib/types";
@@ -119,6 +121,7 @@
 	let selectedLuckKey = $state("none");
 	let selectedShinyLuckKey = $state("none");
 	let selectedMythicLuckKey = $state("none");
+	let baseLuckMultiplier = $state(DEFAULT_BASE_LUCK);
 
 	$effect(() => {
 		const hasActiveVariant = data.item.variants.some((variant) => variant.variant === activeVariant);
@@ -126,6 +129,25 @@
 		if (hasActiveVariant === false) {
 			activeVariant = data.item.defaultVariant.variant;
 		}
+	});
+
+	onMount(() => {
+		const syncBaseLuckMultiplier = () => {
+			baseLuckMultiplier = readStoredBaseLuck();
+		};
+
+		const handleStorage = (event: StorageEvent) => {
+			if (event.key === BASE_LUCK_STORAGE_KEY || event.key == null) {
+				syncBaseLuckMultiplier();
+			}
+		};
+
+		syncBaseLuckMultiplier();
+		window.addEventListener("storage", handleStorage);
+
+		return () => {
+			window.removeEventListener("storage", handleStorage);
+		};
 	});
 
 	const selectedVariant = $derived(
@@ -280,7 +302,7 @@
 			return value;
 		}
 
-		let adjustedDenominator = denominator;
+		let adjustedDenominator = denominator / baseLuckMultiplier;
 
 		for (const controlKey of visibleLuckControls) {
 			adjustedDenominator /= getLuckOddsMultiplier(controlKey);
@@ -541,7 +563,7 @@
 		padding: 2rem 0 3rem;
 		display: grid;
 		gap: 1rem;
-		text-transform: lowercase;
+		text-transform: var(--site-text-transform);
 	}
 
 	.topbar {
@@ -734,7 +756,7 @@
 		color: var(--text);
 		font-size: 0.72rem;
 		letter-spacing: 0.04em;
-		text-transform: lowercase;
+		text-transform: var(--site-text-transform);
 		width: auto;
 		flex: none;
 		white-space: nowrap;
@@ -777,7 +799,7 @@
 		background: var(--panel);
 		color: var(--text);
 		text-align: left;
-		text-transform: lowercase;
+		text-transform: var(--site-text-transform);
 	}
 
 	.luck-dropdown button small {

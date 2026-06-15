@@ -1,72 +1,14 @@
 <script lang="ts">
-	import { Moon, Sun } from "@lucide/svelte";
-	import { onMount } from "svelte";
-
-	type ThemeMode = "dark" | "light";
-	const THEME_TRANSITION_MS = 320;
-
-	let theme = $state<ThemeMode>("dark");
-	let transitionTimeout = 0;
-
-	const beginThemeTransition = () => {
-		if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-			return;
-		}
-
-		document.documentElement.dataset.themeChanging = "true";
-
-		if (transitionTimeout !== 0) {
-			window.clearTimeout(transitionTimeout);
-		}
-
-		transitionTimeout = window.setTimeout(() => {
-			delete document.documentElement.dataset.themeChanging;
-			transitionTimeout = 0;
-		}, THEME_TRANSITION_MS);
-	};
-
-	const syncTheme = (nextTheme: ThemeMode) => {
-		theme = nextTheme;
-		document.documentElement.dataset.theme = nextTheme;
-		localStorage.setItem("tycoon-sim-wiki-theme", nextTheme);
-	};
-
-	const toggleTheme = () => {
-		beginThemeTransition();
-		syncTheme(theme === "dark" ? "light" : "dark");
-	};
-
-	onMount(() => {
-		const storedTheme = localStorage.getItem("tycoon-sim-wiki-theme");
-		const preferredTheme =
-			storedTheme === "light" || storedTheme === "dark"
-				? storedTheme
-				: window.matchMedia("(prefers-color-scheme: light)").matches
-					? "light"
-					: "dark";
-
-		syncTheme(preferredTheme);
-
-		return () => {
-			if (transitionTimeout !== 0) {
-				window.clearTimeout(transitionTimeout);
-			}
-		};
-	});
+	import { Settings2 } from "@lucide/svelte";
 </script>
 
-<button
+<a
 	class="icon-button"
-	type="button"
-	aria-label={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
-	onclick={toggleTheme}
+	href="/settings"
+	aria-label="Open settings"
 >
-	{#if theme === "dark"}
-		<Sun aria-hidden="true" size={16} strokeWidth={2} />
-	{:else}
-		<Moon aria-hidden="true" size={16} strokeWidth={2} />
-	{/if}
-</button>
+	<Settings2 aria-hidden="true" size={16} strokeWidth={2} />
+</a>
 
 <style>
 	.icon-button {

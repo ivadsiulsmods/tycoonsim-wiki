@@ -16,24 +16,24 @@
 
 <main class="info-shell">
 	<header class="topbar">
-		<a class="brand" href="/">tycoon sim wiki</a>
+		<a class="brand" href="/">Tycoon Sim Wiki</a>
 		<div class="topbar-actions">
 			<a class="primary top-button" href={joinGameUrl} target="_blank" rel="noreferrer"
-				>join the game</a
+				>Join the Game</a
 			>
-			<a class="secondary top-button" href="/catalog">index</a>
-			<a class="secondary top-button" href="/crates">crates</a>
-			<a class="secondary top-button" href="/builder">builder</a>
+			<a class="secondary top-button" href="/catalog">Index</a>
+			<a class="secondary top-button" href="/crates">Crates</a>
+			<a class="secondary top-button" href="/builder">Builder</a>
 			<ThemeToggle />
 		</div>
 	</header>
 
 	<section class="hero-panel">
 		<div class="hero-copy">
-			<p class="eyebrow">quick reference</p>
-			<h1>extra info</h1>
+			<p class="eyebrow">Quick Reference</p>
+			<h1>Extra Info</h1>
 			<p class="description">
-				some information that may come in useful
+				Some information that may come in useful
 			</p>
 		</div>
 
@@ -78,7 +78,7 @@
 		padding: 2rem 0 3rem;
 		display: grid;
 		gap: 1rem;
-		text-transform: lowercase;
+		text-transform: var(--site-text-transform);
 	}
 
 	.topbar {

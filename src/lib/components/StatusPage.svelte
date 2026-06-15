@@ -26,13 +26,13 @@
 
 <main class="status-shell">
 	<header class="topbar">
-		<a class="brand" href="/">tycoon sim wiki</a>
+		<a class="brand" href="/">Tycoon Sim Wiki</a>
 		<div class="topbar-actions">
 			<a class="primary top-button" href={joinGameUrl} target="_blank" rel="noreferrer"
-				>join the game</a
+				>Join the Game</a
 			>
-			<a class="secondary top-button" href="/extra-info">extra info</a>
-			<a class="secondary top-button" href="/builder">builder</a>
+			<a class="secondary top-button" href="/extra-info">Extra Info</a>
+			<a class="secondary top-button" href="/builder">Builder</a>
 			<ThemeToggle />
 		</div>
 	</header>
@@ -63,7 +63,7 @@
 		align-content: start;
 		padding: 2rem 0 3rem;
 		gap: 1rem;
-		text-transform: lowercase;
+		text-transform: var(--site-text-transform);
 	}
 
 	.topbar {

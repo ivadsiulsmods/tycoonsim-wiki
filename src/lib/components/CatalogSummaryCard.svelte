@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { onMount } from "svelte";
+	import { DEFAULT_BASE_LUCK, readStoredBaseLuck } from "$lib/client-settings";
 	import type { CatalogDetail, CatalogSummaryItem } from "$lib/types";
 
 	type QuickStat = {
@@ -11,8 +13,32 @@
 	};
 
 	let { item }: Props = $props();
+	let baseLuckMultiplier = $state(DEFAULT_BASE_LUCK);
+
+	onMount(() => {
+		const syncBaseLuckMultiplier = () => {
+			baseLuckMultiplier = readStoredBaseLuck();
+		};
+
+		const handleStorage = (event: StorageEvent) => {
+			if (event.key === "tycoon-sim-wiki-base-luck" || event.key == null) {
+				syncBaseLuckMultiplier();
+			}
+		};
+
+		syncBaseLuckMultiplier();
+		window.addEventListener("storage", handleStorage);
+
+		return () => {
+			window.removeEventListener("storage", handleStorage);
+		};
+	});
 
 	const hasValue = (value: string): boolean => value.trim().toUpperCase() !== "N/A";
+	const formatDisplayText = (value: string): string =>
+		value.replace(/(^|[\s/-])([a-z])/g, (match, prefix: string, letter: string) => {
+			return `${prefix}${letter.toUpperCase()}`;
+		});
 	const findDetailValue = (details: CatalogDetail[], label: string): string => {
 		const detail = details.find((entry) => entry.label === label);
 		return detail?.value.trim() ?? "N/A";
@@ -64,7 +90,7 @@
 			return normalized;
 		}
 
-		return `1/${formatShortNumber(denominator)}`;
+		return `1/${formatShortNumber(Math.max(denominator / baseLuckMultiplier, 1))}`;
 	};
 	const formatMultiplierValue = (value: string): string => {
 		const normalized = normalizeQuickStatValue(value);
@@ -75,9 +101,11 @@
 
 		return `${normalized}x`;
 	};
-	const crate = $derived(item.defaultVariant.obtainmentMethod);
+	const crate = $derived(formatDisplayText(item.defaultVariant.obtainmentMethod));
 	const variantSummary = $derived(
-		item.availableVariants.length > 0 ? item.availableVariants.join(", ") : "base only"
+		item.availableVariants.length > 0
+			? item.availableVariants.map((variant) => formatDisplayText(variant)).join(", ")
+			: "Base Only"
 	);
 	const rarityClass = $derived(
 		`rarity-${item.defaultVariant.rarity.toLowerCase().replaceAll(" ", "-")}`
@@ -101,7 +129,7 @@
 		if (item.category === "upgraders") {
 			if (hasValue(amountValue)) {
 				stats.push({
-					label: typeValue === "addative" ? "amount" : "multiplier",
+					label: typeValue === "addative" ? "Amount" : "Multiplier",
 					value:
 						typeValue === "addative"
 							? normalizeQuickStatValue(amountValue)
@@ -114,16 +142,16 @@
 			const multiplier = findDetailValue(details, "multiplier");
 
 			if (hasValue(multiplier)) {
-				stats.push({ label: "multiplier", value: formatMultiplierValue(multiplier) });
+				stats.push({ label: "Multiplier", value: formatMultiplierValue(multiplier) });
 			}
 		}
 
 		if (hasValue(oddsValue)) {
-			stats.push({ label: "odds", value: shortenOdds(oddsValue) });
+			stats.push({ label: "Odds", value: shortenOdds(oddsValue) });
 		}
 
 		if (hasValue(sizeValue)) {
-			stats.push({ label: "size", value: normalizeQuickStatValue(sizeValue) });
+			stats.push({ label: "Size", value: normalizeQuickStatValue(sizeValue) });
 		}
 
 		return stats;
@@ -131,20 +159,26 @@
 	const summaryRows = $derived(
 		[
 			hasValue(item.defaultVariant.rarity)
-				? { label: "rarity class", value: item.defaultVariant.rarity, className: "rarity-value" }
+				? {
+						label: "Rarity Class",
+						value: formatDisplayText(item.defaultVariant.rarity),
+						className: "rarity-value"
+					}
 				: null,
-			hasValue(item.categoryType) ? { label: "type", value: item.categoryType, className: "" } : null,
+			hasValue(item.categoryType)
+				? { label: "Type", value: formatDisplayText(item.categoryType), className: "" }
+				: null,
 			hasValue(variantSummary)
-				? { label: "shiny/mythic", value: variantSummary, className: "" }
+				? { label: "Shiny/Mythic", value: variantSummary, className: "" }
 				: null,
-			hasValue(crate) ? { label: "crate", value: crate, className: "" } : null
+			hasValue(crate) ? { label: "Crate", value: crate, className: "" } : null
 		].filter((row) => row !== null)
 	);
 </script>
 
 <a class={`summary-card ${rarityClass}`} href={`/catalog/${item.category}/${item.slug}`}>
-	<p class="type">{item.categoryLabel}</p>
-	<h3>{item.name}</h3>
+	<p class="type">{formatDisplayText(item.categoryLabel)}</p>
+	<h3>{formatDisplayText(item.name)}</h3>
 
 	{#if quickStats.length > 0}
 		<div class="quick-stats" aria-label="quick item stats">
@@ -178,7 +212,7 @@
 		border: 1px solid var(--rarity-color);
 		background: var(--card-bg);
 		color: var(--text);
-		text-transform: lowercase;
+		text-transform: var(--site-text-transform);
 	}
 
 	.summary-card:hover {

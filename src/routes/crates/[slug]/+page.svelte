@@ -20,17 +20,17 @@
 	const crateSections = $derived<CrateSection[]>([
 		{
 			key: "droppers",
-			label: "droppers",
+			label: "Droppers",
 			items: data.crate.items.droppers
 		},
 		{
 			key: "upgraders",
-			label: "upgraders",
+			label: "Upgraders",
 			items: data.crate.items.upgraders
 		},
 		{
 			key: "furnaces",
-			label: "furnaces",
+			label: "Furnaces",
 			items: data.crate.items.furnaces
 		}
 	]);
@@ -43,21 +43,21 @@
 
 <main class="detail-shell">
 	<header class="topbar">
-		<a class="brand" href="/">tycoon sim wiki</a>
+		<a class="brand" href="/">Tycoon Sim Wiki</a>
 		<div class="topbar-actions">
 			<a class="primary top-button" href={joinGameUrl} target="_blank" rel="noreferrer"
-				>join the game</a
+				>Join the Game</a
 			>
-			<a class="secondary top-button" href="/catalog">index</a>
-			<a class="secondary top-button" href="/builder">builder</a>
-			<a class="secondary top-button" href="/extra-info">extra info</a>
+			<a class="secondary top-button" href="/catalog">Index</a>
+			<a class="secondary top-button" href="/builder">Builder</a>
+			<a class="secondary top-button" href="/extra-info">Extra Info</a>
 			<ThemeToggle />
 		</div>
 	</header>
 
 	<section class="detail-top">
 		<div>
-			<a class="back-link" href="/crates">back to crates</a>
+			<a class="back-link" href="/crates">Back to Crates</a>
 			<h1>{data.crate.name}</h1>
 		</div>
 		<a
@@ -66,28 +66,28 @@
 			target="_blank"
 			rel="noreferrer"
 		>
-			open spreadsheet
+			Open Spreadsheet
 		</a>
 	</section>
 
 	<section class="detail-card">
 		<div class="detail-header">
 			<div>
-				<p class="section-label">crate info</p>
+				<p class="section-label">Crate Info</p>
 				<h2>{data.crate.name}</h2>
 			</div>
 			<span class:secret-pill={data.crate.hasSecret} class="variant-pill">
-				{data.crate.hasSecret ? "secret possible" : "no secret"}
+				{data.crate.hasSecret ? "Secret Possible" : "No Secret"}
 			</span>
 		</div>
 
 		<div class="summary-grid">
 			<div>
-				<dt>cost</dt>
+				<dt>Cost</dt>
 				<dd>{data.crate.cost}</dd>
 			</div>
 			<div>
-				<dt>has secret</dt>
+				<dt>Has Secret</dt>
 				<dd class={`secret-icon ${data.crate.hasSecret ? "is-true" : "is-false"}`}>
 					{#if data.crate.hasSecret}
 						<Check size={18} strokeWidth={2.4} aria-label="has secret" />
@@ -97,15 +97,15 @@
 				</dd>
 			</div>
 			<div>
-				<dt>droppers</dt>
+				<dt>Droppers</dt>
 				<dd>{data.crate.itemCounts.droppers}</dd>
 			</div>
 			<div>
-				<dt>upgraders</dt>
+				<dt>Upgraders</dt>
 				<dd>{data.crate.itemCounts.upgraders}</dd>
 			</div>
 			<div>
-				<dt>furnaces</dt>
+				<dt>Furnaces</dt>
 				<dd>{data.crate.itemCounts.furnaces}</dd>
 			</div>
 		</div>
@@ -129,7 +129,7 @@
 							{/each}
 						</ul>
 					{:else}
-						<p class="empty-copy">nothing listed here yet.</p>
+						<p class="empty-copy">Nothing listed here yet.</p>
 					{/if}
 				</section>
 			{/each}
@@ -144,7 +144,7 @@
 		padding: 2rem 0 3rem;
 		display: grid;
 		gap: 1rem;
-		text-transform: lowercase;
+		text-transform: var(--site-text-transform);
 	}
 
 	.topbar {

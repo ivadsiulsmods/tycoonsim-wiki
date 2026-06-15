@@ -44,23 +44,23 @@
 
 <main class="merch-shell">
 	<header class="topbar">
-		<a class="brand" href="/">tycoon sim wiki</a>
+		<a class="brand" href="/">Tycoon Sim Wiki</a>
 		<div class="topbar-actions">
 			<a class="primary top-button" href={joinGameUrl} target="_blank" rel="noreferrer"
-				>join the game</a
+				>Join the Game</a
 			>
-			<a class="secondary top-button" href="/catalog">index</a>
-			<a class="secondary top-button" href="/builder">builder</a>
-			<a class="secondary top-button" href="/extra-info">extra info</a>
+			<a class="secondary top-button" href="/catalog">Index</a>
+			<a class="secondary top-button" href="/builder">Builder</a>
+			<a class="secondary top-button" href="/extra-info">Extra Info</a>
 			<ThemeToggle />
 		</div>
 	</header>
 
 	<section class="hero-panel">
 		<div class="hero-copy">
-			<p class="eyebrow">roblox clothing</p>
-			<h1>merch</h1>
-			<p class="description">buy this awesome clothing if u wanna idk</p>
+			<p class="eyebrow">Roblox Clothing</p>
+			<h1>Merch</h1>
+			<p class="description">Buy this awesome clothing if you want to, I guess.</p>
 		</div>
 	</section>
 
@@ -72,14 +72,14 @@
 				</div>
 
 				<div class="merch-copy">
-					<p class="eyebrow">available now</p>
+					<p class="eyebrow">Available Now</p>
 					<h2>{normalizeMerchText(item.name)}</h2>
 					<div class="price-row">
-						<span>cost</span>
+						<span>Cost</span>
 						<strong>{item.price} Robux</strong>
 					</div>
 					<a class="primary buy-link" href={item.url} target="_blank" rel="noreferrer">
-						view on roblox
+						View on Roblox
 					</a>
 				</div>
 			</article>
@@ -94,7 +94,7 @@
 		padding: 2rem 0 3rem;
 		display: grid;
 		gap: 1rem;
-		text-transform: lowercase;
+		text-transform: var(--site-text-transform);
 	}
 
 	.topbar {

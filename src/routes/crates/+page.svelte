@@ -24,38 +24,38 @@
 
 <main class="catalog-shell">
 	<header class="topbar">
-		<a class="brand" href="/">tycoon sim wiki</a>
+		<a class="brand" href="/">Tycoon Sim Wiki</a>
 		<div class="topbar-actions">
 			<a class="primary top-button" href={joinGameUrl} target="_blank" rel="noreferrer"
-				>join the game</a
+				>Join the Game</a
 			>
-			<a class="secondary top-button" href="/catalog">index</a>
-			<a class="secondary top-button" href="/builder">builder</a>
-			<a class="secondary top-button" href="/extra-info">extra info</a>
+			<a class="secondary top-button" href="/catalog">Index</a>
+			<a class="secondary top-button" href="/builder">Builder</a>
+			<a class="secondary top-button" href="/extra-info">Extra Info</a>
 			<ThemeToggle />
 		</div>
 	</header>
 
 	<section class="catalog-top">
 		<div>
-			<h1>tycoon simulator <span>crates</span></h1>
+			<h1>Tycoon Simulator <span>Crates</span></h1>
 		</div>
 
 		<div class="stats">
 			<div>
 				<strong>{data.crates.length}</strong>
-				<span>crate types</span>
+				<span>Crate types</span>
 			</div>
 			<div>
 				<strong>{totalSecrets}</strong>
-				<span>with secrets</span>
+				<span>With secrets</span>
 			</div>
 		</div>
 	</section>
 
 	<section class="section-header">
 		<div>
-			<p class="section-label">all crates</p>
+			<p class="section-label">All Crates</p>
 			<h2>{data.crates.length} results</h2>
 		</div>
 	</section>
@@ -74,7 +74,7 @@
 		padding: 2rem 0 3rem;
 		display: grid;
 		gap: 1.35rem;
-		text-transform: lowercase;
+		text-transform: var(--site-text-transform);
 	}
 
 	.topbar {
@@ -96,7 +96,7 @@
 		padding: 0.95rem 1.2rem;
 		color: var(--text);
 		font-size: 0.95rem;
-		text-transform: lowercase;
+		text-transform: var(--site-text-transform);
 	}
 
 	.topbar-actions {
