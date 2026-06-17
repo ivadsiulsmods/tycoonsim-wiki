@@ -2,6 +2,7 @@
 	import { onMount } from "svelte";
 	import ThemeToggle from "$lib/components/ThemeToggle.svelte";
 	import { BASE_LUCK_STORAGE_KEY, DEFAULT_BASE_LUCK, readStoredBaseLuck } from "$lib/client-settings";
+	import { crateNames } from "$lib/crates";
 	import "katex/dist/katex.min.css";
 	import katex from "katex";
 	import type { CatalogSummaryItem, CatalogVariant } from "$lib/types";
@@ -88,13 +89,6 @@
 			latex:
 				String.raw`P(\text{survive after } n,\text{ using }k=2\text{ first})=\prod_{k=2}^{n}\frac{1.5}{k}=\frac{1.5^{n-1}}{n!}`
 		}
-	];
-	const crateNames = [
-		"Futuristic Crate",
-		"Advanced Crate",
-		"Factory Crate",
-		"Quarry Crate",
-		"Basic Crate"
 	];
 	const crateSlugByName = new Map(
 		crateNames.map((name) => [

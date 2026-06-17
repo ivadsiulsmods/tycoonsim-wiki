@@ -1,5 +1,6 @@
 import { error } from "@sveltejs/kit";
 import * as XLSX from "xlsx";
+import { crateConfigs, type CrateConfig } from "$lib/crates";
 import catalogSnapshot from "$lib/data/catalog-snapshot.json";
 import type {
 	CatalogDetailSegment,
@@ -75,13 +76,6 @@ type SectionCacheEntry = {
 	section: CatalogSection;
 };
 
-type CrateConfig = {
-	gid: string;
-	key: string;
-	label: string;
-	spreadsheetUrl: string;
-};
-
 type CrateCacheEntry = {
 	crates: CrateItem[];
 	expiresAt: number;
@@ -138,65 +132,6 @@ const ignoredSpreadsheetLines = new Set([
 	"we have confirmed stats)",
 	"..."
 ]);
-const crateConfigs: CrateConfig[] = [
-	{
-		key: "basic-crate",
-		label: "Basic Crate",
-		gid: "1551521706",
-		spreadsheetUrl:
-			"https://docs.google.com/spreadsheets/d/1iLCa9vykk5DKBN_JrUFIg2h34XU02hiBJp2Yzg_-5aU/edit?gid=1551521706#gid=1551521706"
-	},
-	{
-		key: "advanced-crate",
-		label: "Advanced Crate",
-		gid: "971720418",
-		spreadsheetUrl:
-			"https://docs.google.com/spreadsheets/d/1iLCa9vykk5DKBN_JrUFIg2h34XU02hiBJp2Yzg_-5aU/edit?gid=971720418#gid=971720418"
-	},
-	{
-		key: "factory-crate",
-		label: "Factory Crate",
-		gid: "743536198",
-		spreadsheetUrl:
-			"https://docs.google.com/spreadsheets/d/1iLCa9vykk5DKBN_JrUFIg2h34XU02hiBJp2Yzg_-5aU/edit?gid=743536198#gid=743536198"
-	},
-	{
-		key: "quarry-crate",
-		label: "Quarry Crate",
-		gid: "391730752",
-		spreadsheetUrl:
-			"https://docs.google.com/spreadsheets/d/1iLCa9vykk5DKBN_JrUFIg2h34XU02hiBJp2Yzg_-5aU/edit?gid=391730752#gid=391730752"
-	},
-	{
-		key: "futuristic-crate",
-		label: "Futuristic Crate",
-		gid: "391596298",
-		spreadsheetUrl:
-			"https://docs.google.com/spreadsheets/d/1iLCa9vykk5DKBN_JrUFIg2h34XU02hiBJp2Yzg_-5aU/edit?gid=391596298#gid=391596298"
-	},
-	{
-		key: "toxic-crate",
-		label: "Toxic Crate",
-		gid: "881230867",
-		spreadsheetUrl:
-			"https://docs.google.com/spreadsheets/d/1iLCa9vykk5DKBN_JrUFIg2h34XU02hiBJp2Yzg_-5aU/edit?gid=881230867#gid=881230867"
-	},
-	{
-		key: "desert-crate",
-		label: "Desert Crate",
-		gid: "266360237",
-		spreadsheetUrl:
-			"https://docs.google.com/spreadsheets/d/1iLCa9vykk5DKBN_JrUFIg2h34XU02hiBJp2Yzg_-5aU/edit?gid=266360237#gid=266360237"
-	},
-	{
-		key: "fantasy-crate",
-		label: "Fantasy Crate",
-		gid: "358255744",
-		spreadsheetUrl:
-			"https://docs.google.com/spreadsheets/d/1iLCa9vykk5DKBN_JrUFIg2h34XU02hiBJp2Yzg_-5aU/edit?gid=358255744#gid=358255744"
-	}
-];
-
 const extraInfoConfig: ExtraInfoConfig = {
 	gid: "357911461"
 };
