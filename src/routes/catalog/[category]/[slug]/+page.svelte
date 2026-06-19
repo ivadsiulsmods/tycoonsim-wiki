@@ -2,12 +2,12 @@
 	import { onMount } from "svelte";
 	import ThemeToggle from "$lib/components/ThemeToggle.svelte";
 	import { BASE_LUCK_STORAGE_KEY, DEFAULT_BASE_LUCK, readStoredBaseLuck } from "$lib/client-settings";
-	import { crateNames } from "$lib/crates";
 	import "katex/dist/katex.min.css";
 	import katex from "katex";
-	import type { CatalogSummaryItem, CatalogVariant } from "$lib/types";
+	import type { CatalogSummaryItem, CatalogVariant, CrateSummaryItem } from "$lib/types";
 
 	type PageData = {
+		crates: CrateSummaryItem[];
 		item: CatalogSummaryItem;
 	};
 
@@ -90,24 +90,20 @@
 				String.raw`P(\text{survive after } n,\text{ using }k=2\text{ first})=\prod_{k=2}^{n}\frac{1.5}{k}=\frac{1.5^{n-1}}{n!}`
 		}
 	];
-	const crateSlugByName = new Map(
-		crateNames.map((name) => [
-			name.toLowerCase(),
-			name
-				.toLowerCase()
-				.replace(/[^a-z0-9]+/g, "-")
-				.replace(/^-+|-+$/g, "")
-		])
-	);
-	const crateMentionPattern = new RegExp(
-		crateNames
+	let { data }: { data: PageData } = $props();
+
+	const crateSlugByName = $derived(new Map(
+		data.crates.map((crate) => [crate.name.toLowerCase(), crate.slug])
+	));
+	const crateMentionPattern = $derived(new RegExp(
+		data.crates
+			.map((crate) => crate.name)
 			.toSorted((left, right) => right.length - left.length)
 			.map((name) => name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
 			.join("|"),
 		"gi"
-	);
+	));
 
-	let { data }: { data: PageData } = $props();
 	const hasValue = (value: string): boolean => value.trim().toUpperCase() !== "N/A";
 
 	let activeVariant = $state("N/A");

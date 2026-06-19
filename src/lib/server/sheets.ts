@@ -1,6 +1,5 @@
 import { error } from "@sveltejs/kit";
 import * as XLSX from "xlsx";
-import { crateConfigs, type CrateConfig } from "$lib/crates";
 import catalogSnapshot from "$lib/data/catalog-snapshot.json";
 import type {
 	CatalogDetailSegment,
@@ -539,8 +538,13 @@ const dedupeCrateEntries = (entries: CrateListEntry[]): CrateListEntry[] => {
 	return result;
 };
 
-const parseCrateCost = (label: string): string => {
-	const match = label.match(/Cost:\s*(.+?)\s+Dropper Name$/i);
+const parseCrateCost = (rows: ParsedSheetCell[][]): string => {
+	const heading = rows
+		.slice(0, 6)
+		.flat()
+		.map((cell) => cell.value)
+		.find((value) => /\bcost\s*:/i.test(value));
+	const match = heading?.match(/\bcost\s*:\s*([^,\n]+)/i);
 
 	if (match == null) {
 		return "N/A";
@@ -549,46 +553,112 @@ const parseCrateCost = (label: string): string => {
 	return match[1].trim();
 };
 
-const parseCrateSheet = (
-	config: CrateConfig,
-	payload: GoogleVisualizationPayload
-): CrateItem => {
-	const columns = payload.table?.cols ?? [];
-	const rows = payload.table?.rows ?? [];
-	const cost = parseCrateCost(columns[0]?.label ?? "");
+const getCratePrice = (cost: string): number => {
+	const match = cost
+		.replaceAll(",", "")
+		.trim()
+		.match(/^\$?([0-9]+(?:\.[0-9]+)?)\s*([a-z]*)$/i);
+
+	if (match == null) {
+		return Number.POSITIVE_INFINITY;
+	}
+
+	const suffixPowers: Record<string, number> = {
+		"": 0,
+		k: 3,
+		m: 6,
+		b: 9,
+		t: 12,
+		qd: 15,
+		qn: 18,
+		qi: 18,
+		sx: 21,
+		sp: 24,
+		oc: 27,
+		no: 30,
+		dc: 33,
+		ud: 36,
+		dd: 39,
+		td: 42,
+		qad: 45,
+		qid: 48,
+		sxd: 51,
+		spd: 54,
+		ocd: 57,
+		nod: 60
+	};
+	const power = suffixPowers[match[2].toLowerCase()];
+
+	if (power == null) {
+		return Number.POSITIVE_INFINITY;
+	}
+
+	return Number(match[1]) * 10 ** power;
+};
+
+const getCrateSection = (value: string): CategoryKey | null => {
+	const normalized = value.trim().toLowerCase().replace(/s$/, "");
+
+	if (normalized === "dropper") {
+		return "droppers";
+	}
+
+	if (normalized === "upgrader") {
+		return "upgraders";
+	}
+
+	if (normalized === "furnace") {
+		return "furnaces";
+	}
+
+	return null;
+};
+
+const createCrateSpreadsheetUrl = (sheetName: string): string =>
+	`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:html&sheet=${encodeURIComponent(sheetName)}`;
+
+const parseCrateSheet = (sheetName: string, rows: ParsedSheetCell[][]): CrateItem => {
+	const cost = parseCrateCost(rows);
 	const itemGroups: Record<CategoryKey, CrateListEntry[]> = {
 		droppers: [],
 		upgraders: [],
 		furnaces: []
 	};
 	let hasSecret = false;
-	let currentSection: CategoryKey = "droppers";
+	let currentSection: CategoryKey | null = null;
+	let variantColumnIndex: number | null = null;
 
 	for (const row of rows) {
-		const values = row.c.map(gvizCellToString);
+		const values = row.map((cell) => cell.value.trim());
 		const firstValue = values[0]?.trim() ?? "";
-		const normalizedFirstValue = firstValue.toLowerCase();
 
 		if (values.some((value) => value.trim().toLowerCase() === "secret")) {
 			hasSecret = true;
 		}
 
-		if (normalizedFirstValue === "" || normalizedFirstValue === "name") {
+		const section = getCrateSection(firstValue);
+
+		if (section != null) {
+			currentSection = section;
+			variantColumnIndex = null;
 			continue;
 		}
 
-		if (normalizedFirstValue === "furnaces") {
-			currentSection = "furnaces";
+		if (firstValue.toLowerCase() === "name") {
+			const foundVariantColumnIndex = values.findIndex(
+				(value) => value.toLowerCase() === "variant"
+			);
+			variantColumnIndex = foundVariantColumnIndex === -1 ? null : foundVariantColumnIndex;
 			continue;
 		}
 
-		if (normalizedFirstValue === "upgraders") {
-			currentSection = "upgraders";
+		if (currentSection == null || variantColumnIndex == null || firstValue === "") {
 			continue;
 		}
 
-		if (normalizedFirstValue === "droppers") {
-			currentSection = "droppers";
+		const variant = values[variantColumnIndex] ?? "";
+
+		if (variant === "" || isNotAvailable(firstValue)) {
 			continue;
 		}
 
@@ -616,9 +686,9 @@ const parseCrateSheet = (
 			upgraders,
 			furnaces
 		},
-		name: config.label,
-		slug: config.key,
-		spreadsheetUrl: config.spreadsheetUrl
+		name: sheetName,
+		slug: slugify(sheetName),
+		spreadsheetUrl: createCrateSpreadsheetUrl(sheetName)
 	};
 };
 
@@ -837,24 +907,43 @@ const loadCrates = async (fetchFn: typeof fetch): Promise<CrateItem[]> => {
 
 	inFlightCrateLoad = (async () => {
 		try {
-			const crates = await Promise.all(
-				crateConfigs.map(async (config) => {
-					const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=${config.gid}`;
-					const response = await fetchFn(url);
+			const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=xlsx`;
+			const requestFetch = globalThis.fetch ?? fetchFn;
+			const response = await requestFetch(url, {
+				headers: {
+					accept: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+				},
+				signal: AbortSignal.timeout(15_000)
+			});
 
-					if (response.ok === false) {
-						throw new Error(`Received ${response.status} from Google Sheets.`);
-					}
+			if (response.ok === false) {
+				throw new Error(`Received ${response.status} from the spreadsheet export.`);
+			}
 
-					const payload = parseGvizPayload(await response.text());
+			const contentType = response.headers.get("content-type") ?? "";
 
-					if (payload.status !== "ok" || payload.table == null) {
-						throw new Error(`Crate sheet "${config.label}" did not return tabular data.`);
-					}
+			if (contentType.includes("spreadsheetml.sheet") === false) {
+				throw new Error(`The crate export returned "${contentType}" instead of a workbook.`);
+			}
 
-					return parseCrateSheet(config, payload);
-				})
-			);
+			const workbook = XLSX.read(Buffer.from(await response.arrayBuffer()), {
+				cellFormula: false,
+				type: "buffer"
+			});
+			const crates = workbook.SheetNames
+				.filter((sheetName) => /\bcrate$/i.test(sheetName.trim()))
+				.map((sheetName) =>
+					parseCrateSheet(sheetName.trim(), getSheetRows(workbook.Sheets[sheetName]))
+				)
+				.sort((left, right) => {
+					const priceDifference = getCratePrice(left.cost) - getCratePrice(right.cost);
+
+					return priceDifference === 0 ? left.name.localeCompare(right.name) : priceDifference;
+				});
+
+			if (crates.length === 0) {
+				throw new Error("No crate sheets were found in the spreadsheet export.");
+			}
 
 			crateCache = {
 				crates,
