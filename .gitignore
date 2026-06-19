@@ -1,4 +1,7 @@
 node_modules
+pnpm-lock.yaml
+dev-server.log
+.pnpm-store
 
 # Output
 .output

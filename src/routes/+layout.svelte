@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from "svelte";
+	import AdminAbuseCountdown from "$lib/components/AdminAbuseCountdown.svelte";
 	import "../app.css";
 
 	let { children } = $props();
@@ -67,6 +68,15 @@
 <div class="app-shell">
 	<div class="site-background" aria-hidden="true"></div>
 	<div class="app-content">
+		<div class="event-banner-slot">
+			<AdminAbuseCountdown />
+		</div>
 		{@render children()}
 	</div>
 </div>
+
+<style>
+	.event-banner-slot {
+		padding-top: 1rem;
+	}
+</style>
