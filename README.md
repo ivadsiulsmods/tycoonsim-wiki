@@ -60,31 +60,38 @@ notes about parsing:
 install dependencies:
 
 ```sh
-npm install
+pnpm install
+```
+
+copy `.env.example` to `.env` and add a Twitch application’s credentials so the live indicator can query the official Twitch API:
+
+```env
+TWITCH_CLIENT_ID=your_client_id
+TWITCH_CLIENT_SECRET=your_client_secret
 ```
 
 start the dev server:
 
 ```sh
-npm run dev
+pnpm dev
 ```
 
 run type and svelte checks:
 
 ```sh
-npm run check
+pnpm check
 ```
 
 build for production:
 
 ```sh
-npm run build
+pnpm build
 ```
 
 preview the production build locally:
 
 ```sh
-npm run preview
+pnpm preview
 ```
 
 ## project structure
