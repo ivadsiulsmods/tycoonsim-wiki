@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 
-	const EVENT_HOUR_UTC = 20;
+	const EVENT_HOUR_UTC = 18;
 	const SATURDAY_UTC = 6;
 	const DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000;
 	const WEEK_IN_MILLISECONDS = 7 * 24 * 60 * 60 * 1000;
